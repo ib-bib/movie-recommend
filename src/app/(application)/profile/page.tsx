@@ -1,5 +1,4 @@
-
-export const Profile = () => {
+export default async function Profile() {
     return (
         <div>Profile</div>
     )

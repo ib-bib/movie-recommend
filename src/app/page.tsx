@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid'
 import Image from 'next/image';
 
-export default async function Home() {
+export default async function Index() {
 
   return (
     <main className="flex items-center justify-center flex-col gap-2 grow">
