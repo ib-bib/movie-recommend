@@ -38,30 +38,24 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authConfig = {
+  theme: {
+    colorScheme: "dark",
+    brandColor: "#002088",
+    logo: "/logo-full.png",
+  },
   providers: [
     EmailProvider({
       server: {
         host: "smtp.gmail.com",
         port: 587,
         auth: {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           user: env.MAIL_USER,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           pass: env.MAIL_PASS,
         },
       },
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       from: env.MAIL_USER,
+      name: "Email",
     }),
-    /**
-     * ...add more providers here.
-     *
-     * Most other providers require a bit more work than the Discord provider. For example, the
-     * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-     * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-     *
-     * @see https://next-auth.js.org/providers/github
-     */
   ],
   adapter: DrizzleAdapter(db, {
     usersTable: users,
@@ -70,6 +64,10 @@ export const authConfig = {
     verificationTokensTable: verificationTokens,
   }),
   callbacks: {
+    async redirect({ baseUrl }) {
+      // After login, always redirect to /profile
+      return `${baseUrl}/profile`;
+    },
     session: ({ session, user }) => ({
       ...session,
       user: {

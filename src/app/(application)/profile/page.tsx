@@ -1,5 +1,5 @@
 export default async function Profile() {
     return (
-        <div>Profile</div>
+        <section className="w-11/12 flex">Profile</section>
     )
 }
