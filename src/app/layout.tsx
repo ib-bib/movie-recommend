@@ -5,7 +5,7 @@ import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { auth } from "~/server/auth";
-import { TopNav } from './_components/nav';
+import { TopNav } from '~/app/_components/top_nav';
 
 export const metadata: Metadata = {
   title: "Fusion",

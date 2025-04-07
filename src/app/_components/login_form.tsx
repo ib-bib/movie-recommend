@@ -45,7 +45,7 @@ export function LoginForm() {
         <div className="w-full flex flex-col justify-center items-center gap-1">
             <label className="w-10/12 text-left" htmlFor="email-address">Your Email Address</label>
             <div className='w-11/12 rounded-full h-14 px-4 flex items-center border-white border gap-2'>
-                <EnvelopeIcon className="size-6 text-white-500" />
+                <EnvelopeIcon className="size-6 " />
                 <input
                     required
                     name="email-address"

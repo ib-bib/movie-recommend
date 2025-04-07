@@ -1,5 +1,13 @@
+import { redirect } from "next/navigation";
+
+import { auth } from '~/server/auth'
+import HomeContent from "~/app/_components/home_content";
+
 export default async function Home() {
-    return (
-        <div>Home</div>
-    )
+    const session = await auth();
+    if (!session?.user) {
+        redirect("/");
+    }
+
+    return <HomeContent />
 }

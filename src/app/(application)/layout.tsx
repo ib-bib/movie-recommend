@@ -1,10 +1,10 @@
-import { BottomNav } from "../_components/nav";
+import { BottomNav } from "~/app/_components/bot_nav";
 
 export default function AppLayout({
     children,
 }: Readonly<{ children: React.ReactNode }>) {
-    return <main className="flex flex-col grow w-full justify-between items-center pt-2 pb-4">
+    return <>
         {children}
         <BottomNav />
-    </main>
+    </>
 }
