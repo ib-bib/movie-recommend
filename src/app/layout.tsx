@@ -25,7 +25,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${geist.variable}`}>
-      <body className="bg-gradient-to-b min-h-screen flex flex-col from-[#002088] to-[#121325] text-white">
+      <body className="bg-gradient-to-b min-h-screen flex flex-col from-[#002088] via-[#001f50] to-[#000f29] text-neutral-100">
         <TopNav signedIn={session?.user ? true : false} />
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>

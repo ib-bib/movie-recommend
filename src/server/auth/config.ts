@@ -1,4 +1,5 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { eq } from "drizzle-orm";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import EmailProvider from "next-auth/providers/nodemailer";
 import { env } from "~/env";
@@ -57,6 +58,22 @@ export const authConfig = {
       name: "Email",
     }),
   ],
+  events: {
+    async createUser({ user }) {
+      const email = user.email;
+      const userId = user.id;
+
+      if (!email || !userId) return;
+
+      // Use the email prefix as a default name
+      const defaultName = email.split("@")[0];
+
+      await db
+        .update(users)
+        .set({ name: defaultName }) // assumes you have a `name` column
+        .where(eq(users.id, userId));
+    },
+  },
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,
