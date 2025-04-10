@@ -2,34 +2,7 @@ import { relations, sql } from "drizzle-orm";
 import { index, pgTableCreator, primaryKey, unique } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
 export const createTable = pgTableCreator((name) => `movie-rec_${name}`);
-
-// export const posts = createTable(
-//   "post",
-//   (d) => ({
-//     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-//     name: d.varchar({ length: 256 }),
-//     createdById: d
-//       .varchar({ length: 255 })
-//       .notNull()
-//       .references(() => users.id),
-//     createdAt: d
-//       .timestamp({ withTimezone: true })
-//       .default(sql`CURRENT_TIMESTAMP`)
-//       .notNull(),
-//     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-//   }),
-//   (t) => [
-//     index("created_by_idx").on(t.createdById),
-//     index("name_idx").on(t.name),
-//   ],
-// );
 
 export const users = createTable("user", (d) => ({
   id: d
@@ -47,10 +20,6 @@ export const users = createTable("user", (d) => ({
     .default(sql`CURRENT_TIMESTAMP`),
   image: d.varchar({ length: 255 }),
   cf_weight: d.doublePrecision().default(6.0),
-}));
-
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
 }));
 
 export const accounts = createTable(
@@ -108,15 +77,22 @@ export const verificationTokens = createTable(
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );
 
-export const movies = createTable("movie", (d) => ({
-  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  movieId: d.integer().unique(),
-  title: d.varchar({ length: 200 }),
-  image: d.varchar({ length: 500 }),
-  meanRating: d.doublePrecision(),
-  bayesianRating: d.doublePrecision(),
-  releaseYear: d.integer(),
-}));
+export const movies = createTable(
+  "movie",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    movieId: d.integer().unique(),
+    title: d.varchar({ length: 200 }),
+    image: d.varchar({ length: 500 }),
+    meanRating: d.doublePrecision(),
+    bayesianRating: d.doublePrecision(),
+    releaseYear: d.integer(),
+  }),
+  (t) => [
+    index("movie_title_idx").on(t.title),
+    index("movie_release_year_idx").on(t.releaseYear),
+  ],
+);
 
 export const genres = createTable("genre", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
@@ -130,7 +106,10 @@ export const movie_genres = createTable(
     movieId: d.integer().references(() => movies.movieId),
     genreId: d.integer().references(() => genres.id),
   }),
-  (t) => [unique("unique_movie_genre").on(t.movieId, t.genreId)],
+  (t) => [
+    unique("unique_movie_genre").on(t.movieId, t.genreId),
+    index("movie_genre_movie_idx").on(t.movieId),
+  ],
 );
 
 export const movieGenresRelations = relations(movie_genres, ({ one }) => ({
@@ -142,14 +121,6 @@ export const movieGenresRelations = relations(movie_genres, ({ one }) => ({
     fields: [movie_genres.genreId],
     references: [genres.id],
   }),
-}));
-
-export const moviesRelations = relations(movies, ({ many }) => ({
-  genres: many(movie_genres),
-}));
-
-export const genresRelations = relations(genres, ({ many }) => ({
-  movies: many(movie_genres),
 }));
 
 export const movieRecommendations = createTable(
@@ -167,10 +138,20 @@ export const movieRecommendations = createTable(
     model: d.varchar({ length: 3 }).notNull(), // "cf" or "cbf"
     liked: d.boolean().default(false),
     disliked: d.boolean().default(false),
+    saved: d.boolean().default(false),
     recommendedAt: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`),
   }),
+  (t) => [
+    index("movie_recommendation_user_idx").on(t.userId),
+    index("movie_recommendation_movie_idx").on(t.movieId),
+    index("movie_recommendation_model_idx").on(t.model),
+    index("movie_recommendation_liked_idx").on(t.liked),
+    index("movie_recommendation_disliked_idx").on(t.disliked),
+    index("movie_recommendation_saved_idx").on(t.saved),
+    unique("unique_movie_recommendation").on(t.userId, t.movieId, t.model),
+  ],
 );
 
 export const movieRecommendationsRelations = relations(
@@ -186,3 +167,61 @@ export const movieRecommendationsRelations = relations(
     }),
   }),
 );
+
+export const userMovieInteractions = createTable(
+  "user_movie_interaction",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    userId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
+    movieId: d
+      .integer()
+      .notNull()
+      .references(() => movies.movieId),
+    liked: d.boolean().default(false),
+    disliked: d.boolean().default(false),
+    saved: d.boolean().default(false),
+    interactedAt: d
+      .timestamp({ withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`),
+  }),
+  (t) => [
+    index("user_movie_interaction_user_idx").on(t.userId),
+    index("user_movie_interaction_movie_idx").on(t.movieId),
+    index("user_movie_interaction_liked_idx").on(t.liked),
+    index("user_movie_interaction_disliked_idx").on(t.disliked),
+    index("user_movie_interaction_saved_idx").on(t.saved),
+  ],
+);
+
+export const userMovieInteractionsRelations = relations(
+  userMovieInteractions,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userMovieInteractions.userId],
+      references: [users.id],
+    }),
+    movie: one(movies, {
+      fields: [userMovieInteractions.movieId],
+      references: [movies.movieId],
+    }),
+  }),
+);
+
+export const usersRelations = relations(users, ({ many }) => ({
+  accounts: many(accounts),
+  recommendations: many(movieRecommendations),
+  interactions: many(userMovieInteractions),
+}));
+
+export const moviesRelations = relations(movies, ({ many }) => ({
+  genres: many(movie_genres),
+  recommendations: many(movieRecommendations),
+  interactions: many(userMovieInteractions),
+}));
+
+export const genresRelations = relations(genres, ({ many }) => ({
+  movies: many(movie_genres),
+}));

@@ -83,7 +83,7 @@ export const authConfig = {
   callbacks: {
     async redirect({ baseUrl }) {
       // After login, always redirect to /profile
-      return `${baseUrl}/profile`;
+      return `${baseUrl}/home`;
     },
     session: ({ session, user }) => ({
       ...session,

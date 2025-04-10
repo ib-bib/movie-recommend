@@ -1,5 +1,5 @@
 import { UserIcon } from "@heroicons/react/24/outline";
-import { StarIcon, PuzzlePieceIcon, HeartIcon, BookmarkIcon, UserGroupIcon, FilmIcon, HandThumbUpIcon, NumberedListIcon } from '@heroicons/react/24/solid'
+import { StarIcon, PuzzlePieceIcon, HeartIcon, BookmarkIcon, UserGroupIcon, FilmIcon, HandThumbUpIcon, HandThumbDownIcon, NumberedListIcon, NoSymbolIcon } from '@heroicons/react/24/solid'
 import { auth } from "~/server/auth";
 
 export default async function Profile() {
@@ -12,7 +12,7 @@ export default async function Profile() {
                 <UserIcon className="size-6" />
                 <div className="font-semibold">{session?.user.name}</div>
             </div>
-            <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex flex-wrap justify-around items-center pb-4">
+            <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex flex-wrap justify-around items-center pb-6">
                 <div className="flex flex-col items-center">
                     <div className="font-bold">Collaborative Filtering</div>
                     <div className="flex">
@@ -38,18 +38,26 @@ export default async function Profile() {
                     </div>
                 </div>
             </div>
-            <div className="w-11/12 flex flex-col gap-2 justify-center items-center pb-4">
+            <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex flex-col gap-2 justify-center items-center pb-6">
                 <div className="flex flex-col justify-center items-center">
                     <div className="font-bold">
                         Total Recommendations
                     </div>
                     <div className="flex gap-1"><NumberedListIcon className="size-6" /> 10</div>
                 </div>
-                <div className="flex flex-col justify-center items-center">
-                    <div className="font-bold">
-                        Recommendations Liked/Saved
+                <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex items-center justify-between">
+                    <div className="flex flex-col justify-center items-center">
+                        <div className="font-bold">
+                            Good Recommendations
+                        </div>
+                        <div className="flex gap-1"><HandThumbUpIcon className="size-6 text-blue-600" /> 10</div>
                     </div>
-                    <div className="flex gap-1"><HandThumbUpIcon className="size-6 text-blue-600" /> 10</div>
+                    <div className="flex flex-col justify-center items-center">
+                        <div className="font-bold">
+                            Bad Recommendations
+                        </div>
+                        <div className="flex gap-1"><HandThumbDownIcon className="size-6 text-red-600" /> 10</div>
+                    </div>
                 </div>
             </div>
             <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex flex-wrap justify-around items-center text-sm">
@@ -64,6 +72,13 @@ export default async function Profile() {
                     <BookmarkIcon className="size-6 text-green-600" />
                     <div className="flex gap-2">
                         <div className="font-bold">Saved Movies</div>
+                        <div>10</div>
+                    </div>
+                </div>
+                <div className="flex flex-col justify-center items-center">
+                    <NoSymbolIcon className="size-6 text-red-600" />
+                    <div className="flex gap-2">
+                        <div className="font-bold">Disliked Movies</div>
                         <div>10</div>
                     </div>
                 </div>
