@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { SearchBar } from '~/app/_components/search_bar';
 
 export default async function HomeContent() {
-    return <main className="flex items-center justify-center flex-col gap-2 grow">
+    return <main className="flex items-center justify-center flex-col gap-2 grow pb-4">
         <SearchBar />
         <section className='flex items-center justify-around w-full flex-1/2 py-2'>
             <div className='flex flex-col h-full'>

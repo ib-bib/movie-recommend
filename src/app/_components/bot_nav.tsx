@@ -23,8 +23,8 @@ export function BottomNav() {
     const page = path.slice(1)
 
     return (
-        <div className="w-full flex justify-center items-center pb-4">
-            <nav className="flex w-11/12 sm:w-2/3 md:w-1/2 lg:w-1/3 py-2 justify-around items-center bg-slate-900 rounded-full shadow-lg">
+        <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center z-50">
+            <nav className="flex w-11/12 sm:w-2/3 md:w-1/2 lg:w-1/3 py-1 justify-around items-center bg-white/10 backdrop-blur-md rounded-full shadow-lg border border-white/20">
                 {navItems.map(({ href, icon: Icon }) => {
                     const isActive = page === href.slice(1)
 
