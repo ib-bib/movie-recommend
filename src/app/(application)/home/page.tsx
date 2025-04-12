@@ -7,6 +7,8 @@ export default async function Home() {
     const session = await auth();
     if (!session?.user) {
         redirect("/");
+    } else {
+        // void api.movie.getMoviesToDisk.prefetch()
     }
 
     return <HomeContent />

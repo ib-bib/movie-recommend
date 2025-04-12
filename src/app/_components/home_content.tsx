@@ -7,7 +7,7 @@ import { SearchBar } from '~/app/_components/search_bar';
 export default async function HomeContent() {
     return <main className="flex items-center justify-center flex-col gap-2 grow pb-4">
         <SearchBar />
-        <section className='flex items-center justify-around w-full flex-1/2 py-2'>
+        <section className='flex justify-around w-full flex-1/2 py-2'>
             <div className='flex flex-col h-full'>
                 <Link href="/" className="hover:underline underline-offset-4 flex flex-col items-center justify-center">
                     <DocumentIcon className="size-6 " />
