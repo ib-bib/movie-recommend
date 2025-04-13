@@ -10,7 +10,9 @@ export function TopNav({ signedIn }: { signedIn: boolean }) {
 
     return <nav className="w-full py-6 flex justify-between items-center px-4">
         <Link href='/'>
-            <Image src='/logo-full.png' alt="Fusion" width={100} height={100} />
+            <div className="relative">
+                <Image src='/logo-full.png' alt="Fusion" width={100} height={100} />
+            </div>
         </Link>
         {signedIn ?
             <Link href={path == '/' ? '/profile' : '/api/auth/signout'} className="hover:underline underline-offset-4 flex justify-center gap-1">
