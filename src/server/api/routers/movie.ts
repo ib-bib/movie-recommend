@@ -7,14 +7,14 @@ import { env } from "~/env";
 import {
   createTRPCRouter,
   protectedProcedure,
-  // publicProcedure,
+  publicProcedure,
 } from "~/server/api/trpc";
 import {
   movieRecommendations,
   users,
   userMovieInteractions,
 } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 const FLASK_API =
   env.NODE_ENV == "production"
@@ -63,13 +63,13 @@ export const movieRouter = createTRPCRouter({
   //   return allMovies;
   // }),
 
-  // getById: publicProcedure
-  //   .input(z.object({ id: z.number() }))
-  //   .query(async ({ input, ctx }) => {
-  //     return await ctx.db.query.movies.findFirst({
-  //       where: (movies, { eq }) => eq(movies.movieId, input.id),
-  //     });
-  //   }),
+  getById: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input, ctx }) => {
+      return await ctx.db.query.movies.findFirst({
+        where: (movies, { eq }) => eq(movies.movieId, input.id),
+      });
+    }),
 
   getLikedMovies: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.query.userMovieInteractions.findMany({
@@ -78,6 +78,9 @@ export const movieRouter = createTRPCRouter({
           eq(userMovieInteractions.userId, ctx.session.user.id),
           eq(userMovieInteractions.liked, true),
         ),
+      with: {
+        movie: true,
+      },
     });
   }),
 
@@ -88,6 +91,9 @@ export const movieRouter = createTRPCRouter({
           eq(userMovieInteractions.userId, ctx.session.user.id),
           eq(userMovieInteractions.disliked, true),
         ),
+      with: {
+        movie: true,
+      },
     });
   }),
 
@@ -98,6 +104,9 @@ export const movieRouter = createTRPCRouter({
           eq(userMovieInteractions.userId, ctx.session.user.id),
           eq(userMovieInteractions.saved, true),
         ),
+      with: {
+        movie: true,
+      },
     });
   }),
 
@@ -119,7 +128,7 @@ export const movieRouter = createTRPCRouter({
           eq(movieRecommendations.saved, false),
           notInArray(
             movieRecommendations.movieId,
-            interactedMovieIds.length > 0 ? interactedMovieIds : [0],
+            interactedMovieIds.length > 0 ? interactedMovieIds : [-1],
           ), // avoids SQL syntax issues
         ),
       with: {
@@ -135,6 +144,9 @@ export const movieRouter = createTRPCRouter({
           eq(movieRecommendations.userId, ctx.session.user.id),
           eq(movieRecommendations.liked, true),
         ),
+      with: {
+        movie: true,
+      },
     });
   }),
 
@@ -145,6 +157,9 @@ export const movieRouter = createTRPCRouter({
           eq(movieRecommendations.userId, ctx.session.user.id),
           eq(movieRecommendations.disliked, true),
         ),
+      with: {
+        movie: true,
+      },
     });
   }),
 
@@ -155,12 +170,176 @@ export const movieRouter = createTRPCRouter({
           eq(movieRecommendations.userId, ctx.session.user.id),
           eq(movieRecommendations.saved, true),
         ),
+      with: {
+        movie: true,
+      },
     });
   }),
 
   likeMovie: protectedProcedure
     .input(z.object({ id: z.number(), title: z.string(), year: z.number() }))
     .mutation(async ({ input, ctx }) => {
+      const userId = ctx.session.user.id;
+      const movieId = input.id;
+
+      const existingInteraction =
+        await ctx.db.query.userMovieInteractions.findFirst({
+          where: (t, { eq, and }) =>
+            and(eq(t.userId, userId), eq(t.movieId, movieId)),
+        });
+
+      // unliking
+      if (existingInteraction?.liked) {
+        await ctx.db
+          .update(userMovieInteractions)
+          .set({ liked: false })
+          .where(
+            and(
+              eq(userMovieInteractions.userId, userId),
+              eq(userMovieInteractions.movieId, movieId),
+            ),
+          );
+        return;
+      }
+
+      // changing from dislike or save to like
+      await ctx.db
+        .insert(userMovieInteractions)
+        .values({
+          userId,
+          movieId,
+          liked: true,
+        })
+        .onConflictDoUpdate({
+          target: [userMovieInteractions.userId, userMovieInteractions.movieId],
+          set: { liked: true, disliked: false, saved: false },
+        });
+
+      const activeUser = await ctx.db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.id, userId),
+      });
+
+      if (!activeUser?.cf_weight) {
+        throw new TRPCError({
+          message: "Missing cf_weight for user",
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      }
+      const cf_weight = activeUser.cf_weight;
+
+      console.log("Generating recommendations...");
+      const res = await fetch(
+        `${FLASK_API}/recommend/${encodeURIComponent(input.title + " " + input.year)}/${cf_weight}`,
+      );
+      const data = (await res.json()) as FlaskHybridResponse;
+      const cf_recs = data.cf;
+      const cbf_recs = data.cbf;
+      console.log("Recommendations generated");
+
+      await ctx.db
+        .insert(movieRecommendations)
+        .values(
+          cf_recs.map((rec: { rec_id: number }) => ({
+            userId,
+            movieId: rec.rec_id,
+            model: "cf",
+            fromMovie: input.title,
+            fromLike: true,
+          })),
+        )
+        .onConflictDoNothing();
+
+      await ctx.db
+        .insert(movieRecommendations)
+        .values(
+          cbf_recs.map((rec: { rec_id: number }) => ({
+            userId,
+            movieId: rec.rec_id,
+            model: "cbf",
+            fromMovie: input.title,
+            fromLike: true,
+          })),
+        )
+        .onConflictDoNothing();
+    }),
+
+  dislikeMovie: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.session.user.id;
+      const movieId = input.id;
+
+      const existingInteraction =
+        await ctx.db.query.userMovieInteractions.findFirst({
+          where: (t, { eq, and }) =>
+            and(eq(t.userId, userId), eq(t.movieId, movieId)),
+        });
+
+      // un-disliking
+      if (existingInteraction?.disliked) {
+        await ctx.db
+          .update(userMovieInteractions)
+          .set({ disliked: false })
+          .where(
+            and(
+              eq(userMovieInteractions.userId, userId),
+              eq(userMovieInteractions.movieId, movieId),
+            ),
+          );
+        return;
+      }
+
+      await ctx.db
+        .insert(userMovieInteractions)
+        .values({
+          userId,
+          movieId,
+          disliked: true,
+        })
+        .onConflictDoUpdate({
+          target: [userMovieInteractions.userId, userMovieInteractions.movieId],
+          set: { liked: false, disliked: true, saved: false },
+        });
+    }),
+
+  saveMovie: protectedProcedure
+    .input(z.object({ id: z.number(), title: z.string(), year: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.session.user.id;
+      const movieId = input.id;
+
+      const existingInteraction =
+        await ctx.db.query.userMovieInteractions.findFirst({
+          where: (t, { eq, and }) =>
+            and(eq(t.userId, userId), eq(t.movieId, movieId)),
+        });
+
+      // unsaving
+      if (existingInteraction?.liked) {
+        await ctx.db
+          .update(userMovieInteractions)
+          .set({ saved: false })
+          .where(
+            and(
+              eq(userMovieInteractions.userId, userId),
+              eq(userMovieInteractions.movieId, movieId),
+            ),
+          );
+        return;
+      }
+
+      await ctx.db
+        .insert(userMovieInteractions)
+        .values({
+          userId,
+          movieId,
+          saved: true,
+        })
+        .onConflictDoUpdate({
+          target: [userMovieInteractions.userId, userMovieInteractions.movieId],
+          set: { liked: false, disliked: false, saved: true },
+        });
+
       const activeUser = await ctx.db.query.users.findFirst({
         where: (users, { eq }) => eq(users.id, ctx.session.user.id),
       });
@@ -180,12 +359,6 @@ export const movieRouter = createTRPCRouter({
       const cf_recs = data.cf;
       const cbf_recs = data.cbf;
 
-      await ctx.db.insert(userMovieInteractions).values({
-        userId: ctx.session.user.id,
-        movieId: input.id,
-        liked: true,
-      });
-
       await ctx.db
         .insert(movieRecommendations)
         .values(
@@ -193,6 +366,8 @@ export const movieRouter = createTRPCRouter({
             userId: ctx.session.user.id,
             movieId: rec.rec_id,
             model: "cf",
+            fromMovie: input.title,
+            fromLike: false,
           })),
         )
         .onConflictDoNothing();
@@ -204,64 +379,11 @@ export const movieRouter = createTRPCRouter({
             userId: ctx.session.user.id,
             movieId: rec.rec_id,
             model: "cbf",
+            fromMovie: input.title,
+            fromLike: false,
           })),
         )
         .onConflictDoNothing();
-    }),
-
-  dislikeMovie: protectedProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ input, ctx }) => {
-      await ctx.db.insert(userMovieInteractions).values({
-        userId: ctx.session.user.id,
-        movieId: input.id,
-        disliked: true,
-      });
-    }),
-
-  saveMovie: protectedProcedure
-    .input(z.object({ id: z.number(), title: z.string(), year: z.number() }))
-    .mutation(async ({ input, ctx }) => {
-      const activeUser = await ctx.db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.id, ctx.session.user.id),
-      });
-
-      if (!activeUser?.cf_weight) {
-        throw new TRPCError({
-          message: "Missing cf_weight for user",
-          code: "INTERNAL_SERVER_ERROR",
-        });
-      }
-      const cf_weight = activeUser.cf_weight;
-
-      const res = await fetch(
-        `${FLASK_API}/recommend/${encodeURIComponent(input.title + " " + input.year)}/${cf_weight}`,
-      );
-      const data = (await res.json()) as FlaskHybridResponse;
-      const cf_recs = data.cf;
-      const cbf_recs = data.cbf;
-
-      await ctx.db.insert(userMovieInteractions).values({
-        userId: ctx.session.user.id,
-        movieId: input.id,
-        saved: true,
-      });
-
-      await ctx.db.insert(movieRecommendations).values(
-        cf_recs.map((rec: { rec_id: number }) => ({
-          userId: ctx.session.user.id,
-          movieId: rec.rec_id,
-          model: "cf",
-        })),
-      );
-
-      await ctx.db.insert(movieRecommendations).values(
-        cbf_recs.map((rec: { rec_id: number }) => ({
-          userId: ctx.session.user.id,
-          movieId: rec.rec_id,
-          model: "cbf",
-        })),
-      );
     }),
 
   likeRec: protectedProcedure
@@ -327,21 +449,27 @@ export const movieRouter = createTRPCRouter({
         })
         .where(eq(movieRecommendations.id, input.recId));
 
-      await ctx.db.insert(movieRecommendations).values(
-        cf_recs.map((rec: { rec_id: number }) => ({
-          userId: ctx.session.user.id,
-          movieId: rec.rec_id,
-          model: "cf",
-        })),
-      );
+      await ctx.db
+        .insert(movieRecommendations)
+        .values(
+          cf_recs.map((rec: { rec_id: number }) => ({
+            userId: ctx.session.user.id,
+            movieId: rec.rec_id,
+            model: "cf",
+          })),
+        )
+        .onConflictDoNothing();
 
-      await ctx.db.insert(movieRecommendations).values(
-        cbf_recs.map((rec: { rec_id: number }) => ({
-          userId: ctx.session.user.id,
-          movieId: rec.rec_id,
-          model: "cbf",
-        })),
-      );
+      await ctx.db
+        .insert(movieRecommendations)
+        .values(
+          cbf_recs.map((rec: { rec_id: number }) => ({
+            userId: ctx.session.user.id,
+            movieId: rec.rec_id,
+            model: "cbf",
+          })),
+        )
+        .onConflictDoNothing();
     }),
 
   saveRec: protectedProcedure
@@ -354,6 +482,20 @@ export const movieRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      const other_model_rec = await ctx.db.query.movieRecommendations.findFirst(
+        {
+          where: (movieRecommendations, { eq, and }) =>
+            and(
+              eq(
+                movieRecommendations.model,
+                input.model == "cf" ? "cbf" : "cf",
+              ),
+              eq(movieRecommendations.userId, ctx.session.user.id),
+              eq(movieRecommendations.movieId, input.recId),
+            ),
+        },
+      );
+
       await ctx.db
         .update(movieRecommendations)
         .set({
@@ -371,7 +513,24 @@ export const movieRouter = createTRPCRouter({
           code: "INTERNAL_SERVER_ERROR",
         });
       }
+
       const cf_weight = activeUser.cf_weight;
+      let new_weight = 0;
+
+      if (cf_weight > 2 && cf_weight < 10) {
+        if (input.model == "cf") {
+          new_weight = cf_weight + 0.2;
+        } else {
+          new_weight = cf_weight - 0.2;
+        }
+      }
+
+      if (new_weight != 0) {
+        await ctx.db
+          .update(users)
+          .set({ cf_weight: users.cf_weight })
+          .where(eq(users.id, input.userId));
+      }
 
       const res = await fetch(
         `${FLASK_API}/recommend/${encodeURIComponent(input.recTitle)}/${cf_weight}`,
@@ -380,21 +539,27 @@ export const movieRouter = createTRPCRouter({
       const cf_recs = data.cf;
       const cbf_recs = data.cbf;
 
-      await ctx.db.insert(movieRecommendations).values(
-        cf_recs.map((rec: { rec_id: number }) => ({
-          userId: ctx.session.user.id,
-          movieId: rec.rec_id,
-          model: input.model,
-        })),
-      );
+      await ctx.db
+        .insert(movieRecommendations)
+        .values(
+          cf_recs.map((rec: { rec_id: number }) => ({
+            userId: ctx.session.user.id,
+            movieId: rec.rec_id,
+            model: "cf",
+          })),
+        )
+        .onConflictDoNothing();
 
-      await ctx.db.insert(movieRecommendations).values(
-        cbf_recs.map((rec: { rec_id: number }) => ({
-          userId: ctx.session.user.id,
-          movieId: rec.rec_id,
-          model: "cbf",
-        })),
-      );
+      await ctx.db
+        .insert(movieRecommendations)
+        .values(
+          cbf_recs.map((rec: { rec_id: number }) => ({
+            userId: ctx.session.user.id,
+            movieId: rec.rec_id,
+            model: "cbf",
+          })),
+        )
+        .onConflictDoNothing();
     }),
 
   dislikeRec: protectedProcedure
@@ -402,19 +567,44 @@ export const movieRouter = createTRPCRouter({
       z.object({
         userId: z.string(),
         recId: z.number(),
+        model: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       await ctx.db
         .update(movieRecommendations)
         .set({
-          liked: true,
+          disliked: true,
         })
-        .where(eq(movieRecommendations.id, input.recId));
+        .where(eq(movieRecommendations.movieId, input.recId));
 
-      await ctx.db
-        .update(users)
-        .set({ cf_weight: users.cf_weight })
-        .where(eq(users.id, input.userId));
+      const activeUser = await ctx.db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.id, ctx.session.user.id),
+      });
+
+      if (!activeUser?.cf_weight) {
+        throw new TRPCError({
+          message: "Missing cf_weight for user",
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      }
+
+      const cf_weight = activeUser.cf_weight;
+      let new_weight = 0;
+
+      if (cf_weight > 2 && cf_weight < 10) {
+        if (input.model == "cf") {
+          new_weight = cf_weight + 0.2;
+        } else {
+          new_weight = cf_weight - 0.2;
+        }
+      }
+
+      if (new_weight != 0) {
+        await ctx.db
+          .update(users)
+          .set({ cf_weight: users.cf_weight })
+          .where(eq(users.id, input.userId));
+      }
     }),
 });

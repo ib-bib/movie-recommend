@@ -139,6 +139,8 @@ export const movieRecommendations = createTable(
     liked: d.boolean().default(false),
     disliked: d.boolean().default(false),
     saved: d.boolean().default(false),
+    fromMovie: d.varchar({ length: 200 }),
+    fromLike: d.boolean().default(false), // if false => from save, if true => from like
     recommendedAt: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`),
@@ -188,6 +190,7 @@ export const userMovieInteractions = createTable(
       .default(sql`CURRENT_TIMESTAMP`),
   }),
   (t) => [
+    unique("unique_movie_interaction").on(t.userId, t.movieId),
     index("user_movie_interaction_user_idx").on(t.userId),
     index("user_movie_interaction_movie_idx").on(t.movieId),
     index("user_movie_interaction_liked_idx").on(t.liked),

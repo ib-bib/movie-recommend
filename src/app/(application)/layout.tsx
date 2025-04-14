@@ -1,4 +1,5 @@
 import { BottomNav } from "~/app/_components/bot_nav";
+import { Toaster } from 'sonner'
 
 export default function AppLayout({
     children,
@@ -6,5 +7,6 @@ export default function AppLayout({
     return <>
         {children}
         <BottomNav />
+        <Toaster />
     </>
 }

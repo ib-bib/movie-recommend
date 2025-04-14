@@ -3,7 +3,7 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { staticMovies } from "~/lib/staticMovies";
 import { useSelectedMovieStore } from "../utils/store";
@@ -36,7 +36,14 @@ export const SearchBar = () => {
     const [query, setQuery] = useState("");
     const debouncedQuery = useDebouncedValue(query, 150);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const { setMovie } = useSelectedMovieStore()
+    const { movie, setMovie } = useSelectedMovieStore()
+    const router = useRouter()
+
+    useEffect(() => {
+        if (movie.movieId !== -1) {
+            router.push(`/home/movie/${movie.movieId}`)
+        }
+    }, [movie, router])
 
     // Preprocess movies with lowercase titles (once)
     const searchableMovies = useMemo(
@@ -64,7 +71,7 @@ export const SearchBar = () => {
     return (
         <section className="w-full flex flex-col flex-1/2 items-center justify-center gap-4">
             <div className="relative">
-                <Image src="/logo-full.png" alt="Fusion" width={300} height={300} objectFit="contain" />
+                <Image src="/logo-full.png" alt="Fusion" width={300} height={300} />
             </div>
             <div className="text-lg pt-1 pb-2">
                 A{" "}
@@ -117,7 +124,7 @@ export const SearchBar = () => {
                                         })
                                     }}
                                 >
-                                    <Link href={`/movies/${movie.movieId}`}>
+                                    <Link href={`/home/movie/${movie.movieId}`}>
                                         {movie.title} - {movie.releaseYear}
                                     </Link>
                                 </li>
