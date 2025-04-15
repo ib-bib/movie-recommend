@@ -50,7 +50,20 @@ export default async function Profile() {
                         <div className="font-bold">
                             Good Recommendations
                         </div>
-                        <div className="flex gap-1"><HandThumbUpIcon className="size-6 text-blue-600" /> 10</div>
+                        <div className="flex gap-4">
+                            <div className="flex items-center gap-1">
+                                <HandThumbUpIcon className="size-6 text-blue-600" />
+                                <span>10</span>
+                            </div>
+                            <div className="flex gap-2">
+                                <div className="flex items-center gap-1">
+                                    &#40; <HeartIcon className="size-4 text-blue-600" /> 6
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <BookmarkIcon className="size-4 text-blue-600" /> 4 &#41;
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div className="flex flex-col justify-center items-center">
                         <div className="font-bold">
@@ -69,7 +82,7 @@ export default async function Profile() {
                     </div>
                 </div>
                 <div className="flex flex-col justify-center items-center">
-                    <BookmarkIcon className="size-6 text-green-600" />
+                    <BookmarkIcon className="size-6 text-green-500" />
                     <div className="flex gap-2">
                         <div className="font-bold">Saved Movies</div>
                         <div>10</div>

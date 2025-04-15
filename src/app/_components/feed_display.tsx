@@ -2,11 +2,8 @@
 
 import { ArrowDownCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/24/outline";
 import { ArrowDownCircleIcon as SolidArrowDownIcon, ArrowUpCircleIcon as SolidArrowUpIcon } from "@heroicons/react/24/solid";
-import { useState } from "react";
 
 export function FeedDisplay() {
-    const [hoverup, sethoverup] = useState(false)
-    const [hoverdown, sethoverdown] = useState(false)
 
     return <main className="w-full flex flex-col grow items-center gap-4">
         <h1 className="text-2xl font-bold pt-2 pb-4">Feed</h1>
@@ -18,24 +15,17 @@ export function FeedDisplay() {
             </div>
             <div className="w-1/5 flex flex-col items-center justify-center gap-4">
                 <button
-                    onMouseEnter={() => sethoverup(true)}
-                    onMouseLeave={() => sethoverup(false)}
-                    className="hover:cursor-pointer active:scale-95 transition-all border rounded-full flex justify-center items-center"
+                    className="group hover:cursor-pointer active:scale-95 transition-all border rounded-full flex justify-center items-center"
                 >
-                    {hoverup ?
-                        <SolidArrowUpIcon className="size-8" />
-                        : <ArrowUpCircleIcon className="size-8" />
-                    }
+                    <SolidArrowUpIcon className="size-8 hidden group-hover:block" />
+                    <ArrowUpCircleIcon className="size-8 group-hover:hidden" />
                 </button>
                 <button
-                    onMouseEnter={() => sethoverdown(true)}
-                    onMouseLeave={() => sethoverdown(false)}
-                    className="hover:cursor-pointer active:scale-95 transition-all border rounded-full flex justify-center items-center"
+                    className="group hover:cursor-pointer active:scale-95 transition-all border rounded-full flex justify-center items-center"
                 >
-                    {hoverdown ?
-                        <SolidArrowDownIcon className="size-8" />
-                        : <ArrowDownCircleIcon className="size-8" />
-                    }
+                    <SolidArrowDownIcon className="size-8 hidden group-hover:block" />
+                    <ArrowDownCircleIcon className="size-8 group-hover:hidden" />
+
                 </button>
 
             </div>
