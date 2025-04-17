@@ -74,7 +74,7 @@ export const MovieDetails = () => {
                         sizes="100vw"
                         className="h-full w-auto max-w-full object-contain" />
                     :
-                    <Image src={`/images/${String(movie.movieId)}__${movie.title.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, ' ').trim()} ${String(movie.releaseYear)}.jpg`} alt="Movie"
+                    <Image src={`/images/${String(movie.movieId)}__${movie.title.replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, ' ').trim()} ${String(movie.releaseYear)}.jpg`} alt="Movie"
                         width={0}
                         height={0}
                         sizes="100vw"

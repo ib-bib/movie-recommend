@@ -1,15 +1,24 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { recommendedMovies } from "~/app/utils/data/movies";
-import { ArrowDownCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/24/outline";
-import { ArrowDownCircleIcon as SolidArrowDownIcon, ArrowUpCircleIcon as SolidArrowUpIcon } from "@heroicons/react/24/solid";
+import { recommendedMovies } from "../page"; // reusing the same list
+import {
+    ArrowDownCircleIcon,
+    ArrowUpCircleIcon,
+} from "@heroicons/react/24/outline";
+import {
+    ArrowDownCircleIcon as SolidArrowDownIcon,
+    ArrowUpCircleIcon as SolidArrowUpIcon,
+} from "@heroicons/react/24/solid";
+import Image from "next/image";
 
 type Props = {
-    params: { movieId: string | number };
+    params: { movieId: number };
 };
 
-export default function RecommendedMoviesScrollView({ params }: Props) {
-    const movieIndex = recommendedMovies.findIndex((m) => m.id === params.movieId);
+export default async function RecommendedMoviesScrollView({ params }: Props) {
+    // eslint-disable-next-line @typescript-eslint/await-thenable
+    const { movieId } = await params
+    const movieIndex = recommendedMovies.findIndex((m) => m.id === movieId);
     if (movieIndex === -1) return notFound();
 
     const movie = recommendedMovies[movieIndex];
@@ -18,7 +27,9 @@ export default function RecommendedMoviesScrollView({ params }: Props) {
 
     return (
         <main className="w-full min-h-screen flex flex-col items-center justify-center gap-8 p-4">
-            <h1 className="text-3xl font-bold">{movie?.title ?? 'Movie Title'}</h1>
+            <h1 className="text-3xl font-bold">{movie?.title}</h1>
+            <Image width={0} height={0} src={`/images/${movie?.image ?? 'placeholder.png'}`} alt={movie?.title ?? "Movie"} className="max-w-xs rounded-lg shadow" />
+            <p className="text-neutral-400 text-sm">{movie?.bayesianRating} / 5</p>
 
             <div className="flex gap-4">
                 {prev && (
@@ -29,7 +40,6 @@ export default function RecommendedMoviesScrollView({ params }: Props) {
                         </button>
                     </Link>
                 )}
-
                 {next && (
                     <Link href={`/movies/recommended/${next.id}`}>
                         <button className="group border rounded-full p-2 hover:scale-95 transition-all">

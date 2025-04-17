@@ -71,7 +71,7 @@ export const SearchBar = () => {
     return (
         <section className="w-full flex flex-col flex-1/2 items-center justify-center gap-4">
             <div className="relative">
-                <Image src="/logo-full.png" alt="Fusion" width={300} height={300} />
+                <Image src="/logo-full.png" alt="Fusion" width={500} height={500} className="h-24 w-auto" />
             </div>
             <div className="text-lg pt-1 pb-2">
                 A{" "}

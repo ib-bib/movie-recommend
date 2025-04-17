@@ -11,7 +11,13 @@ export function TopNav({ signedIn }: { signedIn: boolean }) {
     return <nav className="w-full py-6 flex justify-between items-center px-4">
         <Link href='/'>
             <div className="relative">
-                <Image src='/logo-full.png' alt="Fusion" width={100} height={100} />
+                <Image
+                    src='/logo-full.png'
+                    alt="Fusion"
+                    width={100}
+                    height={100}
+                    className="w-auto h-8"
+                />
             </div>
         </Link>
         {signedIn ?

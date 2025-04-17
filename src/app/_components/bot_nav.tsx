@@ -74,7 +74,7 @@ export function BottomNav() {
                     return (
                         <div
                             key={href}
-                            className={`flex flex-col justify-center items-center gap-1 transition-all ${isActive ? "-translate-y-2" : ""
+                            className={`flex flex-col justify-center items-center gap-1 transition-all ${isActive ? "-translate-y-4" : ""
                                 }`}
                         >
                             <div className="relative">
@@ -82,7 +82,7 @@ export function BottomNav() {
                                     href={finalHref}
                                     onClick={() => handleClick(href)}
                                     className={`size-12 flex justify-center items-center rounded-full transition-all ${isActive
-                                        ? "bg-blue-600 text-slate-100 cursor-default shadow-[0_4px_20px_#1e293b66]"
+                                        ? "bg-blue-600 text-slate-100 cursor-default shadow-[0_4px_20px_#1e293b66] border-3 border-[#001f50]"
                                         : "text-slate-400 hover:bg-blue-800 hover:text-neutral-100"
                                         }`}
                                 >
