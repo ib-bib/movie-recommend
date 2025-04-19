@@ -3,10 +3,9 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { staticMovies } from "~/lib/staticMovies";
-import { useSelectedMovieStore } from "../utils/store";
 
 // Debounce Hook
 function useDebouncedValue<T>(value: T, delay: number) {
@@ -36,14 +35,6 @@ export const SearchBar = () => {
     const [query, setQuery] = useState("");
     const debouncedQuery = useDebouncedValue(query, 150);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const { movie, setMovie } = useSelectedMovieStore()
-    const router = useRouter()
-
-    useEffect(() => {
-        if (movie.movieId !== -1) {
-            router.push(`/home/movie/${movie.movieId}`)
-        }
-    }, [movie, router])
 
     // Preprocess movies with lowercase titles (once)
     const searchableMovies = useMemo(
@@ -92,7 +83,7 @@ export const SearchBar = () => {
                 </div>
             ) : (
                 <div className="relative w-11/12 sm:w-3/4 md:w-3/5 lg:w-2/5">
-                    <div className="rounded-full h-14 px-4 flex items-center border-white border gap-2 bg-white/5 backdrop-blur-md">
+                    <div className="rounded-full h-14 px-4 flex items-center border-neutral-100 border gap-2 bg-neutral-100/5 backdrop-blur-md">
                         <MagnifyingGlassIcon className="size-6" />
                         <input
                             type="text"
@@ -108,21 +99,11 @@ export const SearchBar = () => {
                         />
                     </div>
                     {showSuggestions && filteredMovies.length > 0 && (
-                        <ul className="absolute z-50 mt-2 w-full bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-md max-h-60 overflow-y-auto shadow-lg">
+                        <ul className="absolute z-50 mt-2 w-full bg-neutral-100/10 backdrop-blur-md text-white border border-neutral-100/20 rounded-md max-h-60 overflow-y-auto shadow-lg">
                             {filteredMovies.map((movie) => (
                                 <li
                                     key={movie.id}
                                     className="p-2 hover:bg-indigo-500/30 cursor-pointer"
-                                    onClick={() => {
-                                        const { movieId, title, releaseYear, bayesianRating, image } = movie
-                                        setMovie({
-                                            movieId,
-                                            title,
-                                            releaseYear,
-                                            bayesianRating,
-                                            image: image ?? '/images/placeholder.png'
-                                        })
-                                    }}
                                 >
                                     <Link href={`/home/movie/${movie.movieId}`}>
                                         {movie.title} - {movie.releaseYear}

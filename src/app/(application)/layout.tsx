@@ -1,12 +1,23 @@
 import { BottomNav } from "~/app/_components/bot_nav";
 import { Toaster } from 'sonner'
+import { HydrateClient, api } from "~/trpc/server";
+import { auth } from "~/server/auth";
+import { redirect } from "next/navigation";
 
-export default function AppLayout({
+export default async function AppLayout({
     children,
 }: Readonly<{ children: React.ReactNode }>) {
-    return <>
+    const session = await auth();
+
+    if (session?.user) {
+        void api.movie.getMyRecommendations.prefetch()
+    } else {
+        redirect('/api/auth/signin')
+    }
+
+    return <HydrateClient>
         {children}
         <BottomNav />
         <Toaster />
-    </>
+    </HydrateClient>
 }

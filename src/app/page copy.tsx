@@ -21,7 +21,7 @@
 //           </h1>
 //           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
 //             <Link
-//               className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
+//               className="flex max-w-xs flex-col gap-4 rounded-xl bg-neutral-100/10 p-4 hover:bg-neutral-100/20"
 //               href="https://create.t3.gg/en/usage/first-steps"
 //               target="_blank"
 //             >
@@ -32,7 +32,7 @@
 //               </div>
 //             </Link>
 //             <Link
-//               className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
+//               className="flex max-w-xs flex-col gap-4 rounded-xl bg-neutral-100/10 p-4 hover:bg-neutral-100/20"
 //               href="https://create.t3.gg/en/introduction"
 //               target="_blank"
 //             >
@@ -54,7 +54,7 @@
 //               </p>
 //               <Link
 //                 href={session ? "/api/auth/signout" : "/api/auth/signin"}
-//                 className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
+//                 className="rounded-full bg-neutral-100/10 px-10 py-3 font-semibold no-underline transition hover:bg-neutral-100/20"
 //               >
 //                 {session ? "Sign out" : "Sign in"}
 //               </Link>

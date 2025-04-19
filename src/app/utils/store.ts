@@ -1,28 +1,5 @@
 import { create } from "zustand";
-
-export type Movie = {
-  movieId: number;
-  title: string;
-  image: string;
-  bayesianRating: number;
-  releaseYear: number | null;
-};
-
-interface SelectedMovie {
-  movie: Movie;
-  setMovie: (movie: Movie) => void;
-}
-
-export const useSelectedMovieStore = create<SelectedMovie>((set) => ({
-  movie: {
-    movieId: -1,
-    title: "Movie Title",
-    image: "placeholder.png",
-    bayesianRating: 0.0,
-    releaseYear: 1000,
-  },
-  setMovie: (newMovie: Movie) => set({ movie: newMovie }),
-}));
+import { shallow } from "zustand/shallow";
 
 export const useLastMoviesPathStore = create<{
   lastMoviesPath: string;
@@ -31,3 +8,40 @@ export const useLastMoviesPathStore = create<{
   lastMoviesPath: "/movies",
   setLastMoviesPath: (path) => set({ lastMoviesPath: path }),
 }));
+
+export const useLastHomePathStore = create<{
+  lastHomePath: string;
+  setLastHomePath: (path: string) => void;
+}>((set) => ({
+  lastHomePath: "/home",
+  setLastHomePath: (path) => set({ lastHomePath: path }),
+}));
+
+export type Recommendation = {
+  id: number;
+  movieId: number;
+  model: string;
+};
+
+interface RecommendationsState {
+  recommendations: Recommendation[];
+  setRecommendations: (recs: Recommendation[]) => void;
+}
+
+export const useRecommendationsStore = create<RecommendationsState>()(
+  (set, get) => ({
+    recommendations: [],
+    setRecommendations: (incoming) => {
+      const current = get().recommendations;
+      const isSame =
+        current.length === incoming.length &&
+        shallow(
+          current.map((r) => r.id),
+          incoming.map((r) => r.id),
+        );
+      if (!isSame) {
+        set({ recommendations: incoming });
+      }
+    },
+  }),
+);
