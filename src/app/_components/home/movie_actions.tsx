@@ -32,17 +32,17 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
     const isSaved = api.movie.isSaved.useQuery({ movieId }, { refetchOnWindowFocus: false })
     const isDisliked = api.movie.isDisliked.useQuery({ movieId }, { refetchOnWindowFocus: false })
 
-    const [status, setStatus] = useState<'like' | 'save' | 'dislike' | null>(null)
-    const [optimisticStatus, setOptimisticStatus] = useState<'like' | 'save' | 'dislike' | null>(null)
+    const [status, setStatus] = useState<'likes' | 'watch later' | 'dislikes' | null>(null)
+    const [optimisticStatus, setOptimisticStatus] = useState<'likes' | 'watch later' | 'dislikes' | null>(null)
 
     useEffect(() => {
-        if (isLiked.data) setStatus('like')
-        else if (isSaved.data) setStatus('save')
-        else if (isDisliked.data) setStatus('dislike')
+        if (isLiked.data) setStatus('likes')
+        else if (isSaved.data) setStatus('watch later')
+        else if (isDisliked.data) setStatus('dislikes')
         else setStatus(null)
     }, [isLiked.data, isSaved.data, isDisliked.data])
 
-    const handleToggle = (action: 'like' | 'save' | 'dislike') => {
+    const handleToggle = (action: 'likes' | 'watch later' | 'dislikes') => {
         const isActive = status === action
         const nextStatus = isActive ? null : action
 
@@ -51,12 +51,12 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
         const toastID = toast.loading(
             isActive
                 ? `Removing from ${action}...`
-                : `Adding movie to ${action}...`
+                : `${action == 'watch later' ? 'Saving' : 'Adding'} movie to ${action}...`
         )
 
         const mutation =
-            action === 'like' ? likeMutation :
-                action === 'save' ? saveMutation :
+            action === 'likes' ? likeMutation :
+                action === 'watch later' ? saveMutation :
                     dislikeMutation
 
         mutation.mutate(
@@ -91,29 +91,38 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
 
     return (
         <div className='flex flex-col items-start gap-4 transition-all w-24'>
-            {(!activeAction || activeAction === 'like') && (
-                <ActionButton
-                    active={optimisticStatus === 'like' || status === 'like'}
-                    iconActive={<SolidHeart className="text-rose-500 size-6" />}
-                    iconInactive={<OutlineHeart className="group-hover:text-rose-500 size-6" />}
-                    onClick={() => handleToggle('like')}
-                />
+            {(!activeAction || activeAction === 'likes') && (
+                <div className='flex flex-col items-center gap-1'>
+                    <ActionButton
+                        active={optimisticStatus === 'likes' || status === 'likes'}
+                        iconActive={<SolidHeart className="text-rose-500 size-6" />}
+                        iconInactive={<OutlineHeart className="group-hover:text-rose-500 size-6" />}
+                        onClick={() => handleToggle('likes')}
+                    />
+                    <span className='text-xs text-neutral-400'>{status === 'likes' ? 'Liked' : 'Like'}</span>
+                </div>
             )}
-            {(!activeAction || activeAction === 'save') && (
-                <ActionButton
-                    active={optimisticStatus === 'save' || status === 'save'}
-                    iconActive={<SolidSave className="text-green-500 size-6" />}
-                    iconInactive={<OutlineSave className="group-hover:text-green-500 size-6" />}
-                    onClick={() => handleToggle('save')}
-                />
+            {(!activeAction || activeAction === 'watch later') && (
+                <div className="flex flex-col items-center gap-1">
+                    <ActionButton
+                        active={optimisticStatus === 'watch later' || status === 'watch later'}
+                        iconActive={<SolidSave className="text-green-500 size-6" />}
+                        iconInactive={<OutlineSave className="group-hover:text-green-500 size-6" />}
+                        onClick={() => handleToggle('watch later')}
+                    />
+                    <span className='text-xs text-neutral-400'>{status === 'watch later' ? 'Saved to Watch Later' : 'Watch Later'}</span>
+                </div>
             )}
-            {(!activeAction || activeAction === 'dislike') && (
-                <ActionButton
-                    active={optimisticStatus === 'dislike' || status === 'dislike'}
-                    iconActive={<SolidDislike className="text-red-500 size-6" />}
-                    iconInactive={<OutlineDislike className="group-hover:text-red-500 size-6" />}
-                    onClick={() => handleToggle('dislike')}
-                />
+            {(!activeAction || activeAction === 'dislikes') && (
+                <div className='flex flex-col items-center gap-1'>
+                    <ActionButton
+                        active={optimisticStatus === 'dislikes' || status === 'dislikes'}
+                        iconActive={<SolidDislike className="text-red-500 size-6" />}
+                        iconInactive={<OutlineDislike className="group-hover:text-red-500 size-6" />}
+                        onClick={() => handleToggle('dislikes')}
+                    />
+                    <span className='text-xs text-neutral-400'>{status === 'dislikes' ? 'Disiked' : 'Dislike'}</span>
+                </div>
             )}
         </div>
     )

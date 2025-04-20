@@ -1,6 +1,7 @@
 import { ArrowLeftIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import MovieCard from "~/app/_components/movie_card";
+
+import MovieCard from "~/app/_components/movies/movie_card";
 import { api } from "~/trpc/server";
 import { getMovieById } from "~/lib/movies_map";
 
@@ -26,12 +27,12 @@ export default async function RecommendedMoviesPage() {
                     return (
                         <MovieCard
                             key={movie.movieId}
-                            id={movie.movieId}
-                            title={movie.title ?? "Untitled"}
-                            rating={movie.bayesianRating ?? 0}
-                            image={movie.image ?? "placeholder.png"}
-                            releaseYear={movie.releaseYear ?? 0}
-                            mode="saved"
+                            movieId={movie.movieId}
+                            title={movie.title}
+                            rating={movie.bayesianRating}
+                            model={rec.model}
+                            recId={rec.id}
+                            mode="recommended"
                         />
                     );
                 }

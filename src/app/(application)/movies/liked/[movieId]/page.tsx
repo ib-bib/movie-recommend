@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
     ArrowDownCircleIcon,
     ArrowUpCircleIcon,
-    HeartIcon as OutlineLike,
     ChevronLeftIcon,
     ArrowLeftIcon
 } from "@heroicons/react/24/outline";
@@ -11,21 +10,12 @@ import {
     ArrowDownCircleIcon as SolidArrowDownIcon,
     ArrowUpCircleIcon as SolidArrowUpIcon,
     StarIcon,
-    HeartIcon as SolidLike,
 } from "@heroicons/react/24/solid";
 import FallbackImage from "~/app/_components/fallback_image";
 import { NormalizedTitle } from "~/app/_components/normalized_title";
 import { api } from "~/trpc/server";
 import { getMovieById } from "~/lib/movies_map";
-
-
-function normalizeTitle(title: string): string {
-    return title
-        // Keep letters (including accented), numbers, dashes, and spaces only
-        .replace(/[^a-zA-Z0-9À-ž\- ]/g, "")
-        .replace(/\s+/g, " ") // normalize spaces
-        .trim();
-}
+import { RemoveLikeButton } from "~/app/_components/movies/remove_like";
 
 export default async function LikedMoviesScrollView({ params }: { params: Promise<{ movieId: string }> }) {
     const { movieId: movie_id } = await params;
@@ -43,8 +33,6 @@ export default async function LikedMoviesScrollView({ params }: { params: Promis
 
     if (!movie) return notFound();
 
-    const imageFileName = `${movieId}__${normalizeTitle(movie.title)} ${movie.releaseYear}.jpg`;
-
     return (
         <main className="w-full flex flex-col grow items-center tracking-wider gap-2">
             <div className="w-11/12">
@@ -61,23 +49,19 @@ export default async function LikedMoviesScrollView({ params }: { params: Promis
             <NormalizedTitle title={movie?.title} />
 
             {/* Main Content Layout */}
-            <div className="flex flex-wrap w-11/12 sm:w-4/5 lg:w-2/3 gap-6 justify-center max-h-[26rem] overflow-y-auto">
+            <div className="flex flex-wrap w-11/12 sm:w-4/5 lg:w-2/3 gap-6 justify-center pb-4 max-h-[26rem] overflow-y-auto">
                 {/* Buttons + Poster */}
                 <div className="flex flex-row gap-4 items-center">
                     {/* Action Buttons */}
                     <div className="flex flex-col items-start gap-4 w-24">
-                        <button className="group active:scale-90 size-10 flex items-center justify-center rounded-full transition-all bg-neutral-800/70 hover:bg-neutral-900/90 border border-neutral-300/20 hover:cursor-pointer backdrop-blur-md shadow">
-                            <OutlineLike className="group-hover:text-rose-500 size-6 group-active:hidden block" />
-                            <SolidLike className="text-rose-500 size-6 group-active:block hidden" />
-                        </button>
+                        <RemoveLikeButton movieId={movieId} />
                     </div>
 
                     {/* Poster */}
                     <div className="h-72 grow md:h-80 lg:h-96 flex items-center justify-center bg-neutral-100/10 rounded-md overflow-hidden">
                         <FallbackImage
-                            src={`/images/${imageFileName}`}
-                            fallbackSrc={`/images/${movie?.image ?? "placeholder.png"}`}
-                            alt={movie?.title ?? "Movie"}
+                            movieId={movieId}
+                            title={movie.title}
                         />
                     </div>
 

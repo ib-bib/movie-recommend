@@ -1,6 +1,6 @@
 'use client';
 
-import { normalizeTitle } from './search_bar';
+import { normalizeTitle } from '~/app/utils/normalized_strings';
 
 export const NormalizedTitle = ({ title }: { title: string | null | undefined }) => {
     const displayTitle = normalizeTitle(title ?? 'Movie');

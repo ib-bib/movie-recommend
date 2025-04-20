@@ -10,7 +10,7 @@ export default async function AppLayout({
     const session = await auth();
 
     if (session?.user) {
-        void api.movie.getMyRecommendations.prefetch()
+        void api.movie.getMyMostRecent4Recommendations.prefetch()
     } else {
         redirect('/api/auth/signin')
     }
@@ -18,6 +18,6 @@ export default async function AppLayout({
     return <HydrateClient>
         {children}
         <BottomNav />
-        <Toaster />
+        <Toaster richColors closeButton />
     </HydrateClient>
 }

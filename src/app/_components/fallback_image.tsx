@@ -5,24 +5,30 @@ import Image from "next/image";
 import { useState } from "react";
 
 type FallbackImageProps = {
-    src: string;
-    fallbackSrc: string;
-    alt: string;
-    className?: string;
+    movieId: number;
+    title: string;
 };
 
-export default function FallbackImage({ src, fallbackSrc, alt }: FallbackImageProps) {
+export default function FallbackImage({ movieId, title }: FallbackImageProps) {
     const [imageError, setImageError] = useState(false);
 
-    return (
+    return imageError ? (
         <Image
-            src={imageError ? fallbackSrc : src}
-            alt={alt}
+            src={`/images/placeholder.png}`}
+            alt={title}
+            fill
+            className="object-contain z-0"
+        />
+    ) : (
+        <Image
+            src={`/images/${movieId}.jpg`}
+            alt={title}
             width={0}
             height={0}
             sizes="100vw"
-            className="h-full w-auto max-w-full object-contain"
+            className="h-full w-auto max-w-full object-contain -z-10"
             onError={() => setImageError(true)}
         />
     );
 }
+
