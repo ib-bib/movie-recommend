@@ -13,8 +13,8 @@ import {
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useEffect, useState, useMemo } from "react"
-import { useLastHomePathStore, useLastMoviesPathStore, useRecommendationsStore } from "../utils/store"
+import { useState, useMemo } from "react"
+import { useLastHomePathStore, useLastMoviesPathStore } from "../utils/store"
 import { api } from "~/trpc/react"
 
 const navItems = [
@@ -45,7 +45,7 @@ const navItems = [
 ]
 
 export function BottomNav() {
-    const [data] = api.movie.getMyRecommendations.useSuspenseQuery()
+    const [data] = api.movie.getMyMostRecent4Recommendations.useSuspenseQuery()
 
     const path = usePathname()
     const page = path.slice(1)
@@ -54,17 +54,10 @@ export function BottomNav() {
 
     const { lastHomePath } = useLastHomePathStore()
     const { lastMoviesPath } = useLastMoviesPathStore()
-    const { setRecommendations } = useRecommendationsStore()
 
     const recommendations = useMemo(() => {
         return data ?? []
     }, [data])
-
-    useEffect(() => {
-        if (recommendations.length > 0) {
-            setRecommendations(recommendations)
-        }
-    }, [recommendations, setRecommendations])
 
     const shouldShowBadge = showFeedBadge && recommendations.length > 0 && !path.startsWith("/movies")
 
@@ -117,7 +110,7 @@ export function BottomNav() {
                                     onClick={() => handleClick(href)}
                                     className={`size-12 flex justify-center items-center rounded-full transition-all ${isActive
                                         ? "bg-blue-600 text-slate-100 cursor-default shadow-[0_4px_20px_#1e293b66] border-3 border-[#001333]"
-                                        : "text-slate-400 hover:bg-blue-800 hover:text-neutral-50"
+                                        : "text-slate-200 hover:bg-blue-800 hover:text-neutral-50"
                                         }`}
                                 >
                                     <Icon className="size-6" />
@@ -132,7 +125,7 @@ export function BottomNav() {
                             </div>
 
                             <span
-                                className={`text-[0.65rem] font-medium ${isActive ? "text-blue-300" : "text-slate-400"
+                                className={`text-[0.65rem] font-medium ${isActive ? "text-blue-200" : "text-slate-200"
                                     }`}
                             >
                                 {label}

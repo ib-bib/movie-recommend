@@ -83,7 +83,6 @@ export const movies = createTable(
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
     movieId: d.integer().unique(),
     title: d.varchar({ length: 200 }),
-    image: d.varchar({ length: 500 }),
     meanRating: d.doublePrecision(),
     bayesianRating: d.doublePrecision(),
     releaseYear: d.integer(),

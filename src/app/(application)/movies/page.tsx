@@ -32,13 +32,13 @@ export default async function YourMovies() {
             movies: savedMovies,
         },
         {
-            title: "Liked",
+            title: "Likes",
             href: "/movies/liked",
             icon: <HeartIcon className="size-6 text-rose-500" />,
             movies: likedMovies,
         },
         {
-            title: "Disliked",
+            title: "Dislikes",
             href: "/movies/disliked",
             icon: <XCircleIcon className="size-6 text-red-500" />,
             movies: dislikedMovies,
@@ -64,19 +64,14 @@ export default async function YourMovies() {
                                 const movie = getMovieById(movieId ?? -1);
 
                                 if (!movie) return <div key={i} className="w-full h-full" />;
-
-                                const imageFileName = `/images/${movie.id}__${movie.title?.replace(/[^a-zA-Z0-9 -]/g, "").replace(/\s+/g, " ").trim()} ${movie.releaseYear}.jpg`;
-
                                 return (
                                     <div
                                         key={i}
                                         className="flex justify-center items-center rounded overflow-hidden"
                                     >
                                         <FallbackImage
-                                            src={imageFileName}
-                                            fallbackSrc={`/images/${movie.image ?? "placeholder.png"}`}
-                                            alt={movie.title ?? "Movie"}
-                                            className="object-cover w-full h-full"
+                                            movieId={movie.movieId}
+                                            title={movie.title}
                                         />
                                     </div>
                                 );
