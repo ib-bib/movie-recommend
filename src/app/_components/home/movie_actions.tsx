@@ -63,7 +63,7 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
             { movieId, title },
             {
                 onSuccess: () => {
-                    void utils.movie.refetch()
+                    void utils.movie.invalidate()
                     toast.dismiss(toastID)
                     toast.success(
                         isActive
