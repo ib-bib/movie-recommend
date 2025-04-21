@@ -52,6 +52,9 @@ export function RemoveDislikeButton({
             toast.dismiss(loadingToastID);
             toast.error("Unable to remove movie from dislikes. Please try again.");
             setDisliked(true); // Revert icon if failed
+        },
+        onSettled: () => {
+            toast.dismiss(loadingToastID)
         }
     });
 

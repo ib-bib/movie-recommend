@@ -48,6 +48,9 @@ export function RemoveSaveButton({ movieId,
             toast.dismiss(loadingToastID)
             toast.error("Unable to remove movie from watch later. Please try again")
             setSaved(false)
+        },
+        onSettled: () => {
+            toast.dismiss(loadingToastID)
         }
     })
 

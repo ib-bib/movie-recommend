@@ -200,6 +200,9 @@ function ActionButton({
 
             handleError(msg);
         },
+        onSettled: () => {
+            toast.dismiss(loadingToastID)
+        }
     };
 
     const likeRec = api.movie.likeRec.useMutation(mutationOptions).mutate;
@@ -266,6 +269,9 @@ function SingleButton({ icon, action, movieId }: { icon: React.ReactNode, action
                     void utils.movie.getMostRecent4LikedMovies.refetch();
                 }),
                 onError: () => handleMutationError("Could not remove movie from liked, please try again"),
+                onSettled: () => {
+                    toast.dismiss(loadingToastID)
+                }
             }).mutate,
         },
         disliked: {
@@ -280,6 +286,9 @@ function SingleButton({ icon, action, movieId }: { icon: React.ReactNode, action
                     void utils.movie.getMostRecent4DislikedMovies.refetch();
                 }),
                 onError: () => handleMutationError("Could not remove movie from disliked, please try again"),
+                onSettled: () => {
+                    toast.dismiss(loadingToastID)
+                }
             }).mutate,
         },
         saved: {
@@ -294,6 +303,9 @@ function SingleButton({ icon, action, movieId }: { icon: React.ReactNode, action
                     void utils.movie.getMostRecent4SavedMovies.refetch();
                 }),
                 onError: () => handleMutationError("Could not remove movie from watch later, please try again"),
+                onSettled: () => {
+                    toast.dismiss(loadingToastID)
+                }
             }).mutate,
         },
     };

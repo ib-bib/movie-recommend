@@ -61,6 +61,9 @@ export function RecommendationActions({
             toast.dismiss(loadingToastID)
             toast.error("Unable to add movie to likes. Please try again")
             setSelectedAction(null)
+        },
+        onSettled: () => {
+            toast.dismiss(loadingToastID)
         }
     })
 
@@ -78,6 +81,9 @@ export function RecommendationActions({
             toast.dismiss(loadingToastID)
             toast.error("Unable to add movie to dislikes. Please try again")
             setSelectedAction(null)
+        },
+        onSettled: () => {
+            toast.dismiss(loadingToastID)
         }
     })
 
@@ -95,6 +101,9 @@ export function RecommendationActions({
             toast.dismiss(loadingToastID)
             toast.error("Unable to save movie to watch later. Please try again")
             setSelectedAction(null)
+        },
+        onSettled: () => {
+            toast.dismiss(loadingToastID)
         }
     })
 

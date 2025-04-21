@@ -49,6 +49,9 @@ export function RemoveLikeButton({ movieId,
             toast.dismiss(loadingToastID)
             toast.error("Unable to remove movie from likes. Please try again")
             setLiked(true); // Revert icon if failed
+        },
+        onSettled: () => {
+            toast.dismiss(loadingToastID)
         }
     })
 
