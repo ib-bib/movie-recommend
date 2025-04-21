@@ -1,12 +1,12 @@
 import { ArrowLeftIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
-import MovieCard from "~/app/_components/movies/movie_card";
 import { api } from "~/trpc/server";
-import { getMovieById } from "~/lib/movies_map";
+import { SparklesIcon } from "@heroicons/react/24/solid";
+import RecommendedMovieList from "~/app/_components/movies/recommended_movie_list";
 
 export default async function RecommendedMoviesPage() {
-    const recommendedMovies = await api.movie.getMyRecommendations()
+    await api.movie.getMyRecommendations.prefetch()
 
     return (
         <main className="w-full flex flex-col grow items-center">
@@ -17,27 +17,11 @@ export default async function RecommendedMoviesPage() {
                     Return
                 </Link>
             </div>
-            <h1 className="text-2xl font-bold pt-2 pb-4">Recommended</h1>
-            <div className="flex text-sm flex-wrap gap-4 pb-32 w-11/12 justify-center overflow-y-auto h-[30rem]">
-                {recommendedMovies.map((rec) => {
-                    const movie = getMovieById(rec.movieId);
-
-                    if (!movie?.movieId || !movie.title) return null;
-
-                    return (
-                        <MovieCard
-                            key={movie.movieId}
-                            movieId={movie.movieId}
-                            title={movie.title}
-                            rating={movie.bayesianRating}
-                            model={rec.model}
-                            recId={rec.id}
-                            mode="recommended"
-                        />
-                    );
-                }
-                )}
+            <div className="flex gap-2 items-center pt-2 pb-4">
+                <h1 className="text-2xl font-bold">Recommended</h1>
+                <SparklesIcon className="size-7 text-yellow-500" />
             </div>
+            <RecommendedMovieList />
         </main>
     );
 }

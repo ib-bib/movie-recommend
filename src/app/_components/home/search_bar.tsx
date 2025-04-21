@@ -95,8 +95,8 @@ export const SearchBar = () => {
                                     key={movie.id}
                                     className="p-2 hover:bg-indigo-500/30 cursor-pointer"
                                 >
-                                    <Link href={`/home/movie/${movie.movieId}`}>
-                                        {movie.title} - {movie.releaseYear}
+                                    <Link className="w-full block" href={`/home/movie/${movie.movieId}`}>
+                                        {normalizeTitle(movie.title)} - {movie.releaseYear}
                                     </Link>
                                 </li>
                             ))}

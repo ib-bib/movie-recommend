@@ -51,12 +51,12 @@ export default async function DislikedMoviesScrollView({ params }: { params: Pro
             <NormalizedTitle title={movie?.title} />
 
             {/* Main Content Layout */}
-            <div className="flex flex-wrap w-11/12 sm:w-4/5 lg:w-2/3 gap-6 justify-center pb-4 max-h-[26rem] overflow-y-auto">
+            <div className="flex flex-wrap w-11/12 gap-6 justify-center pb-28 max-h-[31rem] overflow-y-auto">
                 {/* Buttons + Poster */}
                 <div className="flex flex-row gap-4 items-center">
                     {/* Action Buttons */}
                     <div className="flex flex-col items-start gap-4 w-24">
-                        <RemoveDislikeButton movieId={movieId} />
+                        <RemoveDislikeButton movieId={movieId} nextId={next?.movieId} prevId={prev?.movieId} />
                     </div>
 
                     {/* Poster */}
@@ -102,7 +102,7 @@ export default async function DislikedMoviesScrollView({ params }: { params: Pro
                     </div>
                 </div>
                 {/* Metadata Section */}
-                <div className="flex flex-col gap-2 w-full md:w-auto items-center justify-center text-sm md:text-base text-neutral-300">
+                <div className="flex flex-col gap-3 w-full lg:w-1/2 max-w-xl justify-center items-center text-sm md:text-base text-neutral-300">
                     {/* Rating + Year */}
                     <div className="flex items-center justify-between w-11/12">
                         <div className="flex gap-1 items-center-safe">

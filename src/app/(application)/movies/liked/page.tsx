@@ -1,11 +1,10 @@
 import { ArrowLeftIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import MovieCard from "~/app/_components/movies/movie_card";
 import { api } from "~/trpc/server";
-import { getMovieById } from "~/lib/movies_map";
+import LikedMoviesList from "~/app/_components/movies/liked_movie_list";
 
 export default async function LikedMoviesPage() {
-    const likedMovies = await api.movie.getLikedMovies()
+    await api.movie.getLikedMovies.prefetch()
 
     return (
         <main className="w-full flex flex-col grow items-center">
@@ -17,24 +16,7 @@ export default async function LikedMoviesPage() {
                 </Link>
             </div>
             <h1 className="text-2xl font-bold pt-2 pb-4">Liked</h1>
-            <div className="flex text-sm flex-wrap gap-4 pb-32 w-11/12 justify-center overflow-y-auto h-[30rem]">
-                {likedMovies.map((like) => {
-                    const movie = getMovieById(like.movieId);
-
-                    if (!movie?.movieId || !movie.title) return null;
-
-                    return (
-                        <MovieCard
-                            key={movie.movieId}
-                            movieId={movie.movieId}
-                            title={movie.title}
-                            rating={movie.bayesianRating}
-                            mode="liked"
-                        />
-                    );
-                }
-                )}
-            </div>
+            <LikedMoviesList />
         </main>
     );
 }

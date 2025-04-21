@@ -51,11 +51,13 @@ export default async function RecommendedMoviesScrollView({ params }: { params: 
             <NormalizedTitle title={movie.title} />
 
             {/* Main Content Layout */}
-            <div className="flex flex-wrap w-11/12 sm:w-4/5 lg:w-2/3 gap-6 justify-center pb-6 max-h-[26rem] overflow-y-auto">
+            <div className="flex flex-wrap w-11/12 gap-6 justify-center pb-28 max-h-[31rem] overflow-y-auto">
                 {/* Buttons + Poster */}
                 <div className="flex flex-row gap-4 items-center">
                     {/* Action Buttons */}
-                    <RecommendationActions movieId={movieId} model={recommendation.model} recId={recommendation.id} />
+                    <RecommendationActions movieId={movieId} model={recommendation.model} recId={recommendation.id}
+                        nextMovieId={next?.movieId}
+                        prevMovieId={prev?.movieId} />
 
                     {/* Poster */}
                     <div className="h-72 grow md:h-80 lg:h-96 flex items-center justify-center bg-neutral-100/10 rounded-md overflow-hidden">
@@ -100,7 +102,7 @@ export default async function RecommendedMoviesScrollView({ params }: { params: 
                     </div>
                 </div>
                 {/* Metadata Section */}
-                <div className="flex flex-col gap-2 w-full md:w-auto items-center justify-center text-sm md:text-base text-neutral-300">
+                <div className="flex flex-col gap-3 w-full lg:w-1/2 max-w-xl justify-center items-center text-sm md:text-base text-neutral-300">
                     {/* Rating + Year */}
                     <div className="flex items-center justify-between w-11/12">
                         <div className="flex gap-1 items-center-safe">

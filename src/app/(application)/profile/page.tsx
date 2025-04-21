@@ -8,6 +8,7 @@ export default async function Profile() {
     const weights = await api.movie.getMyWeights()
     const cf_counts = await api.movie.getCollaborativeCounts()
     const cbf_counts = await api.movie.getContentBasedCounts()
+    const both_model_counts = await api.movie.getBothModelRecsCounts()
     const [likes, dislikes, saves] = await Promise.all([
         api.movie.getLikedCount(),
         api.movie.getDislikedCount(),
@@ -15,14 +16,14 @@ export default async function Profile() {
     ])
 
     return (
-        <main className="w-full flex flex-col grow items-center">
+        <main className="w-full flex flex-col items-center">
             <h1 className="text-2xl font-bold pt-2 pb-4">My Profile</h1>
             <div className="w-11/12 flex justify-end items-center pb-6 gap-1">
                 <UserIcon className="size-6" />
                 <div className="font-semibold">{session?.user.name}</div>
             </div>
-            <div className="w-full flex-col flex justify-center items-center pb-20 max-h-[26rem] pt-20 overflow-y-auto">
-                <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex flex-wrap justify-around items-center pb-8">
+            <div className="flex flex-wrap w-full gap-8 justify-center pb-28 max-h-[29rem] overflow-y-auto">
+                <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex flex-wrap justify-around items-center gap-4">
                     <div className="flex flex-col items-center">
                         <div className="font-bold">Collaborative Filtering</div>
                         <div className="flex">
@@ -49,6 +50,36 @@ export default async function Profile() {
                                 </span>
                             </div>
                             <div className="flex gap-1">
+                                <span className="font-bold">Weight: </span>{weights.cf}%
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <div className="font-bold">By Both Models</div>
+                        <div className="flex">
+                            <StarIcon className="size-6 icon-animated" />
+                            <PuzzlePieceIcon className="size-6 icon-animated" style={{ animationDelay: '0.48s' }} />
+                        </div>
+                        <div className="text-sm invisible">(Similar user tastes)</div>
+                        <div className="flex flex-col justify-center items-center text-sm">
+                            <div className="flex gap-2">
+                                <span className="flex gap-1">
+                                    <span className="font-bold">Recommendations: </span>
+                                    {both_model_counts.total}
+                                </span>
+                                <span className="flex gap-2">
+                                    <span className="flex items-center gap-0.5">
+                                        &#40;<HeartIcon className="size-4 icon-animated" style={{ animationDelay: '0.23s' }} /> {both_model_counts.liked}
+                                    </span>
+                                    <span className="flex items-center gap-0.5">
+                                        <BookmarkIcon className="size-4 icon-animated" style={{ animationDelay: '0.67s' }} /> {both_model_counts.saved}
+                                    </span>
+                                    <span className="flex items-center gap-0.5">
+                                        <XCircleIcon className="size-4 icon-animated" style={{ animationDelay: '0.12s' }} /> {both_model_counts.disliked} &#41;
+                                    </span>
+                                </span>
+                            </div>
+                            <div className="flex gap-1 invisible">
                                 <span className="font-bold">Weight: </span>{weights.cf}%
                             </div>
                         </div>
@@ -83,14 +114,14 @@ export default async function Profile() {
                         </div>
                     </div>
                 </div>
-                <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex flex-col gap-2 justify-center items-center pb-8">
+                <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex flex-col gap-2 justify-center items-center">
                     <div className="flex flex-col justify-center items-center">
                         <div className="font-bold">
                             Total Recommendations
                         </div>
                         <div className="flex gap-1">
                             <NumberedListIcon className="size-6" />
-                            <span>{cbf_counts.total + cf_counts.total}</span>
+                            <span>{cbf_counts.total + cf_counts.total + both_model_counts.total}</span>
                         </div>
                     </div>
                     <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex items-center justify-between">
@@ -104,11 +135,11 @@ export default async function Profile() {
                                     <span>{cbf_counts.liked + cf_counts.liked + cbf_counts.saved + cf_counts.saved}</span>
                                 </div>
                                 <div className="flex gap-2">
-                                    <div className="flex items-center">
+                                    <div className="flex items-center gap-1">
                                         &#40;<HeartIcon className="size-4 text-blue-600" /> {cbf_counts.liked + cf_counts.liked}
                                     </div>
-                                    <div className="flex items-center">
-                                        <BookmarkIcon className="size-4 text-blue-600" /> {cbf_counts.saved + cf_counts.saved}&#41;
+                                    <div className="flex items-center gap-1">
+                                        <BookmarkIcon className="size-4 text-blue-600" /> {cbf_counts.saved + cf_counts.saved} &#41;
                                     </div>
                                 </div>
                             </div>
@@ -121,7 +152,7 @@ export default async function Profile() {
                         </div>
                     </div>
                 </div>
-                <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex flex-wrap justify-around items-center text-sm pt-4">
+                <div className="w-11/12 sm:w-4/5 lg:w-2/3 flex flex-wrap justify-around items-center text-sm">
                     <div className="flex flex-col justify-center items-center">
                         <HeartIcon className="size-6 text-rose-500" />
                         <div className="flex gap-2">

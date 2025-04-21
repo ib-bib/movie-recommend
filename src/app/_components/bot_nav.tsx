@@ -118,7 +118,7 @@ export function BottomNav() {
 
                                 {href === "/movies" && (
                                     <div
-                                        className={`absolute inline-flex items-center justify-center size-3 bg-red-500 rounded-full border-2 border-[#001333] right-2 top-3 transition-all duration-300 ease-in-out ${shouldShowBadge ? "opacity-100 scale-100" : "opacity-0 scale-50"}`}
+                                        className={`absolute inline-flex items-center justify-center size-2.5 bg-orange-500 rounded-full border-2 border-[#001333] right-2 top-3 transition-all duration-300 ease-in-out ${shouldShowBadge ? "opacity-100 scale-100" : "opacity-0 scale-50"}`}
                                     ></div>
                                 )}
 

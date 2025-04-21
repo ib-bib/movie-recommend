@@ -7,17 +7,20 @@ import { useState } from "react";
 type FallbackImageProps = {
     movieId: number;
     title: string;
+    className?: string;
 };
 
-export default function FallbackImage({ movieId, title }: FallbackImageProps) {
+export default function FallbackImage({ movieId, title, className }: FallbackImageProps) {
     const [imageError, setImageError] = useState(false);
 
     return imageError ? (
         <Image
-            src={`/images/placeholder.png}`}
+            src={`/images/placeholder.png`}
             alt={title}
-            fill
-            className="object-contain z-0"
+            width={0}
+            height={0}
+            sizes="100vw"
+            className={cn("h-full w-auto max-w-full", className)}
         />
     ) : (
         <Image
@@ -26,9 +29,12 @@ export default function FallbackImage({ movieId, title }: FallbackImageProps) {
             width={0}
             height={0}
             sizes="100vw"
-            className="h-full w-auto max-w-full object-contain -z-10"
+            className={cn("h-full w-auto max-w-full", className)}
             onError={() => setImageError(true)}
         />
     );
 }
 
+function cn(...classes: (string | undefined | false)[]) {
+    return classes.filter(Boolean).join(" ");
+}

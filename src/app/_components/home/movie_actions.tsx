@@ -63,7 +63,7 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
             { movieId, title },
             {
                 onSuccess: () => {
-                    void utils.movie.invalidate()
+                    void utils.movie.refetch()
                     toast.dismiss(toastID)
                     toast.success(
                         isActive
@@ -90,7 +90,7 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
     const activeAction = optimisticStatus ?? status
 
     return (
-        <div className='flex flex-col items-start gap-4 transition-all w-24'>
+        <div className='flex flex-col items-center gap-6 transition-all w-24'>
             {(!activeAction || activeAction === 'likes') && (
                 <div className='flex flex-col items-center gap-1'>
                     <ActionButton
@@ -99,7 +99,7 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
                         iconInactive={<OutlineHeart className="group-hover:text-rose-500 size-6" />}
                         onClick={() => handleToggle('likes')}
                     />
-                    <span className='text-xs text-neutral-400'>{status === 'likes' ? 'Liked' : 'Like'}</span>
+                    <div className='text-xs text-neutral-400'>{status === 'likes' ? 'Liked' : 'Like'}</div>
                 </div>
             )}
             {(!activeAction || activeAction === 'watch later') && (
@@ -110,7 +110,7 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
                         iconInactive={<OutlineSave className="group-hover:text-green-500 size-6" />}
                         onClick={() => handleToggle('watch later')}
                     />
-                    <span className='text-xs text-neutral-400'>{status === 'watch later' ? 'Saved to Watch Later' : 'Watch Later'}</span>
+                    <div className='text-xs text-neutral-400'>{status === 'watch later' ? 'Saved to Watch Later' : 'Watch Later'}</div>
                 </div>
             )}
             {(!activeAction || activeAction === 'dislikes') && (
@@ -121,7 +121,7 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
                         iconInactive={<OutlineDislike className="group-hover:text-red-500 size-6" />}
                         onClick={() => handleToggle('dislikes')}
                     />
-                    <span className='text-xs text-neutral-400'>{status === 'dislikes' ? 'Disiked' : 'Dislike'}</span>
+                    <div className='text-xs text-neutral-400'>{status === 'dislikes' ? 'Disiked' : 'Dislike'}</div>
                 </div>
             )}
         </div>

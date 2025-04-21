@@ -22,7 +22,7 @@ export default async function YourMovies() {
         {
             title: "Recommended",
             href: "/movies/recommended",
-            icon: <SparklesIcon className="size-6 text-amber-400" />,
+            icon: <SparklesIcon className="size-6 text-yellow-500" />,
             movies: recommendedMovies,
         },
         {
@@ -49,7 +49,7 @@ export default async function YourMovies() {
         <main className="w-full flex flex-col grow items-center">
             <h1 className="text-2xl font-bold pt-2 pb-4">Your Movies</h1>
 
-            <div className="flex max-h-[28rem] overflow-y-auto pb-32 flex-wrap gap-4 w-11/12 justify-center sm:justify-start">
+            <div className="flex max-h-[32rem] overflow-y-auto pb-32 flex-wrap gap-4 w-11/12 justify-center sm:justify-start">
                 {movieCategories.map(({ title, href, icon, movies }) => (
                     <Link
                         key={title}

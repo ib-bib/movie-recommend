@@ -1,11 +1,11 @@
 import { ArrowLeftIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import MovieCard from "~/app/_components/movies/movie_card";
 import { api } from "~/trpc/server";
-import { getMovieById } from "~/lib/movies_map";
+import { BookmarkIcon } from "@heroicons/react/24/solid";
+import SavedMoviesList from "~/app/_components/movies/saved_movie_list";
 
 export default async function SavedMoviesPage() {
-    const savedMovies = await api.movie.getSavedMovies()
+    await api.movie.getSavedMovies.prefetch()
 
     return (
         <main className="w-full flex flex-col grow items-center">
@@ -16,25 +16,11 @@ export default async function SavedMoviesPage() {
                     Return
                 </Link>
             </div>
-            <h1 className="text-2xl font-bold pt-2 pb-4">Saved</h1>
-            <div className="flex text-sm flex-wrap gap-4 pb-32 w-11/12 justify-center overflow-y-auto h-[30rem]">
-                {savedMovies.map((saved) => {
-                    const movie = getMovieById(saved.movieId);
-
-                    if (!movie?.movieId || !movie.title) return null;
-
-                    return (
-                        <MovieCard
-                            key={movie.movieId}
-                            movieId={movie.movieId}
-                            title={movie.title}
-                            rating={movie.bayesianRating}
-                            mode="saved"
-                        />
-                    );
-                }
-                )}
+            <div className="flex items-center gap-2 pt-2 pb-4">
+                <h1 className="text-2xl font-bold">Watch Later</h1>
+                <BookmarkIcon className="text-green-500 size-7" />
             </div>
+            <SavedMoviesList />
         </main>
     );
 }

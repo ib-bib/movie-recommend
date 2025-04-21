@@ -34,7 +34,7 @@ export default async function Movie({ params }: { params: Promise<{ movieId: str
                 </Link>
             </div>
             <NormalizedTitle title={movie.title} />
-            <div className="flex flex-wrap w-11/12 gap-6 justify-center pb-4 max-h-[26rem] overflow-y-auto">
+            <div className="flex flex-wrap w-11/12 gap-6 justify-center pb-28 max-h-[31rem] overflow-y-auto">
                 <div className="flex flex-row gap-4 items-center">
                     <MovieActions
                         movieId={movie.movieId}

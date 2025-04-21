@@ -1,5 +1,8 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import {
     HeartIcon as OutlineLike,
     BookmarkIcon as OutlineSave,
@@ -10,14 +13,39 @@ import {
     BookmarkIcon as SolidSave,
     XCircleIcon as SolidDislike,
 } from "@heroicons/react/24/solid";
-import { toast } from 'sonner'
 
 import { api } from "~/trpc/react";
 
-export function RecommendationActions({ movieId, recId, model }: { movieId: number, recId: number, model: string }) {
+export function RecommendationActions({
+    movieId,
+    recId,
+    model,
+    nextMovieId,
+    prevMovieId,
+}: {
+    movieId: number,
+    recId: number,
+    model: string,
+    nextMovieId?: number,
+    prevMovieId?: number
+}) {
+    const router = useRouter()
     const utils = api.useUtils()
+    const [selectedAction, setSelectedAction] = useState<"like" | "save" | "dislike" | null>(null)
 
     let loadingToastID: string | number
+
+    const handleAfterSuccess = () => {
+        setTimeout(() => {
+            if (nextMovieId) {
+                router.push(`/movies/recommended/${nextMovieId}`)
+            } else if (prevMovieId) {
+                router.push(`/movies/recommended/${prevMovieId}`)
+            } else {
+                router.push(`/movies/recommended`)
+            }
+        }, 500)
+    }
 
     const likeRec = api.movie.likeRec.useMutation({
         onMutate: () => {
@@ -26,16 +54,13 @@ export function RecommendationActions({ movieId, recId, model }: { movieId: numb
         onSuccess: () => {
             toast.dismiss(loadingToastID)
             toast.success("Added movie to likes")
-
-            void utils.movie.getMyRecommendations.invalidate()
-            void utils.movie.getMyMostRecent4Recommendations.invalidate()
-            void utils.movie.getMostRecent4LikedMovies.invalidate()
-            void utils.movie.getLikedMovies.invalidate()
-            void utils.movie.getLikedCount.invalidate()
+            handleAfterSuccess()
+            void utils.movie.getMyRecommendations.refetch()
         },
         onError: () => {
             toast.dismiss(loadingToastID)
-            toast.error("Unable to add movie to likes. PLease try again")
+            toast.error("Unable to add movie to likes. Please try again")
+            setSelectedAction(null)
         }
     })
 
@@ -46,16 +71,13 @@ export function RecommendationActions({ movieId, recId, model }: { movieId: numb
         onSuccess: () => {
             toast.dismiss(loadingToastID)
             toast.success("Added movie to dislikes")
-
-            void utils.movie.getMyRecommendations.invalidate()
-            void utils.movie.getMyMostRecent4Recommendations.invalidate()
-            void utils.movie.getMostRecent4DislikedMovies.invalidate()
-            void utils.movie.getDislikedMovies.invalidate()
-            void utils.movie.getDislikedCount.invalidate()
+            handleAfterSuccess()
+            void utils.movie.getMyRecommendations.refetch()
         },
         onError: () => {
             toast.dismiss(loadingToastID)
-            toast.error("Unable to add movie to dislikes. PLease try again")
+            toast.error("Unable to add movie to dislikes. Please try again")
+            setSelectedAction(null)
         }
     })
 
@@ -66,43 +88,65 @@ export function RecommendationActions({ movieId, recId, model }: { movieId: numb
         onSuccess: () => {
             toast.dismiss(loadingToastID)
             toast.success("Saved movie to watch later")
-
-            void utils.movie.getMyRecommendations.invalidate()
-            void utils.movie.getMyMostRecent4Recommendations.invalidate()
-            void utils.movie.getMostRecent4SavedMovies.invalidate()
-            void utils.movie.getSavedMovies.invalidate()
-            void utils.movie.getSavedCount.invalidate()
+            handleAfterSuccess()
+            void utils.movie.getMyRecommendations.refetch()
         },
         onError: () => {
             toast.dismiss(loadingToastID)
-            toast.error("Unable to save movie to watch later. PLease try again")
+            toast.error("Unable to save movie to watch later. Please try again")
+            setSelectedAction(null)
         }
     })
 
-    return <div className="flex flex-col items-start gap-4 w-24">
-        <button
-            onClick={() => {
-                likeRec.mutate({ movieId, model, recId })
-            }}
-            className="group active:scale-90 size-10 flex items-center justify-center rounded-full transition-all bg-neutral-800/70 hover:bg-neutral-900/90 border border-neutral-300/20 hover:cursor-pointer backdrop-blur-md shadow">
-            <OutlineLike className="group-hover:text-rose-500 size-6 group-active:hidden block" />
-            <SolidLike className="text-rose-500 size-6 group-active:block hidden" />
-        </button>
-        <button
-            onClick={() => {
-                saveRec.mutate({ movieId, model, recId })
-            }}
-            className="group active:scale-90 size-10 flex items-center justify-center rounded-full transition-all bg-neutral-800/70 hover:bg-neutral-900/90 border border-neutral-300/20 hover:cursor-pointer backdrop-blur-md shadow">
-            <OutlineSave className="group-hover:text-green-500 size-6 group-active:hidden block" />
-            <SolidSave className="text-green-500 size-6 group-active:block hidden" />
-        </button>
-        <button
-            onClick={() => {
-                dislikeRec.mutate({ movieId, model, recId })
-            }}
-            className="group active:scale-90 size-10 flex items-center justify-center rounded-full transition-all bg-neutral-800/70 hover:bg-neutral-900/90 border border-neutral-300/20 hover:cursor-pointer backdrop-blur-md shadow">
-            <OutlineDislike className="group-hover:text-red-500 size-6 group-active:hidden block" />
-            <SolidDislike className="text-red-500 size-6 group-active:block hidden" />
-        </button>
-    </div>
+    return (
+        <div className="flex flex-col items-center gap-6 w-24">
+            {/* Like */}
+            {selectedAction === null || selectedAction === "like" ? (
+                <div className="flex flex-col gap-1 items-center">
+                    <button
+                        onClick={() => {
+                            setSelectedAction("like")
+                            likeRec.mutate({ movieId, model, recId })
+                        }}
+                        className="group active:scale-90 size-10 flex items-center justify-center rounded-full transition-all bg-neutral-800/70 hover:bg-neutral-900/90 border border-neutral-300/20 hover:cursor-pointer backdrop-blur-md shadow">
+                        <SolidLike className={`${selectedAction === "like" ? "text-rose-500" : "hidden"} size-6`} />
+                        <OutlineLike className={`${selectedAction === null ? "group-hover:text-rose-500" : "hidden"} size-6`} />
+                    </button>
+                    <div className="text-xs text-neutral-400">Like</div>
+                </div>
+            ) : null}
+
+            {/* Save */}
+            {selectedAction === null || selectedAction === "save" ? (
+                <div className="flex flex-col gap-1 items-center">
+                    <button
+                        onClick={() => {
+                            setSelectedAction("save")
+                            saveRec.mutate({ movieId, model, recId })
+                        }}
+                        className="group active:scale-90 size-10 flex items-center justify-center rounded-full transition-all bg-neutral-800/70 hover:bg-neutral-900/90 border border-neutral-300/20 hover:cursor-pointer backdrop-blur-md shadow">
+                        <SolidSave className={`${selectedAction === "save" ? "text-green-500" : "hidden"} size-6`} />
+                        <OutlineSave className={`${selectedAction === null ? "group-hover:text-green-500" : "hidden"} size-6`} />
+                    </button>
+                    <div className="text-xs text-neutral-400">Watch Later</div>
+                </div>
+            ) : null}
+
+            {/* Dislike */}
+            {selectedAction === null || selectedAction === "dislike" ? (
+                <div className="flex flex-col gap-1 items-center">
+                    <button
+                        onClick={() => {
+                            setSelectedAction("dislike")
+                            dislikeRec.mutate({ movieId, model, recId })
+                        }}
+                        className="group active:scale-90 size-10 flex items-center justify-center rounded-full transition-all bg-neutral-800/70 hover:bg-neutral-900/90 border border-neutral-300/20 hover:cursor-pointer backdrop-blur-md shadow">
+                        <SolidDislike className={`${selectedAction === "dislike" ? "text-red-500" : "hidden"} size-6`} />
+                        <OutlineDislike className={`${selectedAction === null ? "group-hover:text-red-500" : "hidden"} size-6`} />
+                    </button>
+                    <div className="text-xs text-neutral-400">Dislike</div>
+                </div>
+            ) : null}
+        </div>
+    )
 }

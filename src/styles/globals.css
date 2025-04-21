@@ -5,3 +5,38 @@
     var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
+
+@keyframes amber-indigo-shift {
+  0%,
+  100% {
+    color: #f59e0b; /* amber-400 */
+  }
+  50% {
+    color: #818cf8; /* indigo-400 */
+  }
+}
+
+.icon-animated {
+  animation: amber-indigo-shift 3s ease-in-out infinite;
+}
+
+.icon-animated-alternate {
+  animation: amber-indigo-shift 3s ease-in-out infinite alternate;
+}
+
+.icon-delay-1 {
+  animation-delay: 0.23s;
+}
+.icon-delay-2 {
+  animation-delay: 0.47s;
+}
+
+/* .icon-animated-glow {
+  animation: amber-indigo-shift 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+.icon-animated-glow-alternate {
+  animation: amber-indigo-shift 3s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 2px currentColor);
+} */
