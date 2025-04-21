@@ -177,10 +177,21 @@ export const movieRouter = createTRPCRouter({
 
     const interactions = await ctx.db.query.userMovieInteractions.findMany({
       where: (t, { eq }) => eq(t.userId, userId),
-      columns: { movieId: true },
+      columns: { movieId: true, disliked: true },
     });
 
     const interactedMovieIds = interactions.map((i) => i.movieId);
+    const dislikedMovieIds = interactions
+      .filter((i) => i.disliked)
+      .map((i) => i.movieId);
+
+    // Get fromMovie titles to exclude by calling Flask API
+    const dislikedTitles: string[] = [];
+    for (const movieId of dislikedMovieIds) {
+      const req = await fetch(`${FLASK_API}/get_title/${movieId}`);
+      const data = (await req.json()) as { movie_title: string };
+      dislikedTitles.push(data.movie_title);
+    }
 
     const allRecs = await ctx.db.query.movieRecommendations.findMany({
       where: (t, { eq, and, notInArray }) =>
@@ -193,6 +204,11 @@ export const movieRouter = createTRPCRouter({
             t.movieId,
             interactedMovieIds.length > 0 ? interactedMovieIds : [-1],
           ),
+          // Exclude recs from disliked titles
+          notInArray(
+            t.fromMovie,
+            dislikedTitles.length > 0 ? dislikedTitles : [""],
+          ),
         ),
       orderBy: (t, { desc }) => desc(t.recommendedAt),
       columns: {
@@ -204,7 +220,6 @@ export const movieRouter = createTRPCRouter({
       },
     });
 
-    // Deduplicate by movieId
     const seen = new Set<number>();
     const unique = [];
 
@@ -223,10 +238,21 @@ export const movieRouter = createTRPCRouter({
 
     const interactions = await ctx.db.query.userMovieInteractions.findMany({
       where: (t, { eq }) => eq(t.userId, userId),
-      columns: { movieId: true },
+      columns: { movieId: true, disliked: true },
     });
 
-    const interactedMovieIds = interactions.map((i) => Number(i.movieId));
+    const interactedMovieIds = interactions.map((i) => i.movieId);
+    const dislikedMovieIds = interactions
+      .filter((i) => i.disliked)
+      .map((i) => i.movieId);
+
+    // Get fromMovie titles to exclude by calling Flask API
+    const dislikedTitles: string[] = [];
+    for (const movieId of dislikedMovieIds) {
+      const req = await fetch(`${FLASK_API}/get_title/${movieId}`);
+      const data = (await req.json()) as { movie_title: string };
+      dislikedTitles.push(data.movie_title);
+    }
 
     const rawRecs = await ctx.db.query.movieRecommendations.findMany({
       where: (t, { eq, and, notInArray }) =>
@@ -239,12 +265,15 @@ export const movieRouter = createTRPCRouter({
             t.movieId,
             interactedMovieIds.length > 0 ? interactedMovieIds : [-1],
           ),
+          notInArray(
+            t.fromMovie,
+            dislikedTitles.length > 0 ? dislikedTitles : [""],
+          ),
         ),
       orderBy: (t, { desc }) => desc(t.recommendedAt),
       columns: { movieId: true },
     });
 
-    // Deduplicate using strict casting to number
     const seen = new Set<number>();
     const unique: { movieId: number }[] = [];
 
@@ -254,7 +283,7 @@ export const movieRouter = createTRPCRouter({
         seen.add(movieId);
         unique.push({ movieId });
       }
-      if (unique.length == 4) break;
+      if (unique.length === 4) break;
     }
 
     return unique;
