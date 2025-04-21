@@ -77,6 +77,7 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
                     toast.error('Something went wrong.')
                 },
                 onSettled: () => {
+                    toast.dismiss(toastID)
                     setOptimisticStatus(null)
                 }
             }
