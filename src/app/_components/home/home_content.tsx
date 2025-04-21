@@ -15,13 +15,13 @@ export default async function HomeContent() {
                 </Link>
             </div>
             <div className='flex flex-col h-full'>
-                <Link href="/" className="hover:underline underline-offset-4 flex flex-col items-center justify-center">
+                <Link href="https://github.com/ib-bib/grad-proj" className="hover:underline underline-offset-4 flex flex-col items-center justify-center">
                     <CogIcon className="size-6 " />
                     Engine
                 </Link>
             </div>
             <div className='flex flex-col h-full'>
-                <Link href="/" className="hover:underline underline-offset-4 flex flex-col items-center justify-center">
+                <Link href="https://github.com/ib-bib/movie-recommend" className="hover:underline underline-offset-4 flex flex-col items-center justify-center">
                     <CommandLineIcon className="size-6 " />
                     Application
                 </Link>

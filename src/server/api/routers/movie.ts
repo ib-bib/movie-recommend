@@ -513,6 +513,22 @@ export const movieRouter = createTRPCRouter({
             ),
           );
       }
+
+      const req = await fetch(`${FLASK_API}/get_title/${movieId}`);
+      const data = (await req.json()) as {
+        movie_title: string;
+        movie_id: number;
+      };
+
+      await ctx.db
+        .delete(movieRecommendations)
+        .where(
+          and(
+            eq(movieRecommendations.fromMovie, data.movie_title),
+            eq(movieRecommendations.userId, userId),
+          ),
+        );
+
       return {
         success: true,
       };
@@ -783,6 +799,21 @@ export const movieRouter = createTRPCRouter({
       await ctx.db
         .insert(userMovieInteractions)
         .values({ userId, movieId, disliked: true });
+
+      const req = await fetch(`${FLASK_API}/get_title/${movieId}`);
+      const data = (await req.json()) as {
+        movie_title: string;
+        movie_id: number;
+      };
+
+      await ctx.db
+        .delete(movieRecommendations)
+        .where(
+          and(
+            eq(movieRecommendations.fromMovie, data.movie_title),
+            eq(movieRecommendations.userId, userId),
+          ),
+        );
 
       return {
         success: true,
