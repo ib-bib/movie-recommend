@@ -9,7 +9,7 @@ export default async function HomeContent() {
         <SearchBar />
         <section className='flex justify-around w-full flex-1/2 py-2'>
             <div className='flex flex-col h-full'>
-                <Link href="/" className="hover:underline underline-offset-4 flex flex-col items-center justify-center">
+                <Link href="https://docs.google.com/document/d/1BRCrUKjx5FkdV4g9n4iEd1rYq_ELcw9g2g3w77DUNTE" className="hover:underline underline-offset-4 flex flex-col items-center justify-center">
                     <DocumentIcon className="size-6 " />
                     Research
                 </Link>
