@@ -159,14 +159,15 @@ function ActionButton({
         toast.success(message);
 
         // Invalidate related queries to refetch updated state
-        void utils.movie.getMyRecommendations.refetch();
-        void utils.movie.getMyMostRecent4Recommendations.refetch();
-        void utils.movie.getLikedMovies.refetch();
-        void utils.movie.getSavedMovies.refetch();
-        void utils.movie.getDislikedMovies.refetch();
-        void utils.movie.getMostRecent4LikedMovies.refetch();
-        void utils.movie.getMostRecent4SavedMovies.refetch();
-        void utils.movie.getMostRecent4DislikedMovies.refetch();
+        void utils.movie.getMyRecommendations.invalidate();
+        void utils.movie.getMyMostRecent4Recommendations.invalidate();
+        void utils.movie.getLikedMovies.invalidate();
+        void utils.movie.getSavedMovies.invalidate();
+        void utils.movie.getDislikedMovies.invalidate();
+        void utils.movie.getMostRecent4LikedMovies.invalidate();
+        void utils.movie.getMostRecent4SavedMovies.invalidate();
+        void utils.movie.getMostRecent4DislikedMovies.invalidate();
+
     };
 
     const handleError = (message: string) => {
@@ -178,7 +179,7 @@ function ActionButton({
     const mutationOptions = {
         onMutate: () => {
             setSelectedAction(action); // optimistic UI
-            loadingToastID = toast.loading(`Adding movie to ${action}...`);
+            loadingToastID = toast.loading(`${action == 'save' ? 'Saving' : 'Adding'} movie to ${action == 'save' ? 'watch later' : `${action}s`}...`);
         },
         onSuccess: () => {
             const msg =
@@ -200,9 +201,6 @@ function ActionButton({
 
             handleError(msg);
         },
-        onSettled: () => {
-            toast.dismiss(loadingToastID)
-        }
     };
 
     const likeRec = api.movie.likeRec.useMutation(mutationOptions).mutate;
@@ -264,14 +262,11 @@ function SingleButton({ icon, action, movieId }: { icon: React.ReactNode, action
                     loadingToastID = toast.loading("Removing movie from liked...");
                 },
                 onSuccess: () => handleMutationSuccess("Movie removed from likes", () => {
-                    void utils.movie.getLikedCount.refetch();
-                    void utils.movie.getLikedMovies.refetch();
-                    void utils.movie.getMostRecent4LikedMovies.refetch();
+                    void utils.movie.getLikedCount.invalidate();
+                    void utils.movie.getLikedMovies.invalidate();
+                    void utils.movie.getMostRecent4LikedMovies.invalidate();
                 }),
                 onError: () => handleMutationError("Could not remove movie from liked, please try again"),
-                onSettled: () => {
-                    toast.dismiss(loadingToastID)
-                }
             }).mutate,
         },
         disliked: {
@@ -281,14 +276,11 @@ function SingleButton({ icon, action, movieId }: { icon: React.ReactNode, action
                     loadingToastID = toast.loading("Removing movie from disliked...");
                 },
                 onSuccess: () => handleMutationSuccess("Movie removed from dislike", () => {
-                    void utils.movie.getDislikedCount.refetch();
-                    void utils.movie.getDislikedMovies.refetch();
-                    void utils.movie.getMostRecent4DislikedMovies.refetch();
+                    void utils.movie.getDislikedCount.invalidate();
+                    void utils.movie.getDislikedMovies.invalidate();
+                    void utils.movie.getMostRecent4DislikedMovies.invalidate();
                 }),
                 onError: () => handleMutationError("Could not remove movie from disliked, please try again"),
-                onSettled: () => {
-                    toast.dismiss(loadingToastID)
-                }
             }).mutate,
         },
         saved: {
@@ -298,14 +290,11 @@ function SingleButton({ icon, action, movieId }: { icon: React.ReactNode, action
                     loadingToastID = toast.loading("Removing movie from watch later...");
                 },
                 onSuccess: () => handleMutationSuccess("Movie removed from watch later", () => {
-                    void utils.movie.getSavedCount.refetch();
-                    void utils.movie.getSavedMovies.refetch();
-                    void utils.movie.getMostRecent4SavedMovies.refetch();
+                    void utils.movie.getSavedCount.invalidate();
+                    void utils.movie.getSavedMovies.invalidate();
+                    void utils.movie.getMostRecent4SavedMovies.invalidate();
                 }),
                 onError: () => handleMutationError("Could not remove movie from watch later, please try again"),
-                onSettled: () => {
-                    toast.dismiss(loadingToastID)
-                }
             }).mutate,
         },
     };

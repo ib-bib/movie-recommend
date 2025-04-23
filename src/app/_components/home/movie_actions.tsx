@@ -111,7 +111,7 @@ export function MovieActions({ movieId, title }: MovieActionProps) {
                         iconInactive={<OutlineSave className="group-hover:text-green-500 size-6" />}
                         onClick={() => handleToggle('watch later')}
                     />
-                    <div className='text-xs text-neutral-400'>{status === 'watch later' ? 'Saved to Watch Later' : 'Watch Later'}</div>
+                    <div className='text-xs text-neutral-400'>{status === 'watch later' ? 'Saved' : 'Watch Later'}</div>
                 </div>
             )}
             {(!activeAction || activeAction === 'dislikes') && (

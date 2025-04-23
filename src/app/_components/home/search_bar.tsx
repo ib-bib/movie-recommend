@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { staticMovies } from "~/lib/staticMovies";
 import { normalizeTitle } from "~/app/utils/normalized_strings";
+import FallbackImage from "../fallback_image";
 
 // Debounce Hook
 function useDebouncedValue<T>(value: T, delay: number) {
@@ -26,7 +27,6 @@ export const SearchBar = () => {
     const debouncedQuery = useDebouncedValue(query, 150);
     const [showSuggestions, setShowSuggestions] = useState(false);
 
-    // Preprocess movies with lowercase titles (once)
     const searchableMovies = useMemo(
         () =>
             staticMovies.map((movie) => {
@@ -39,7 +39,6 @@ export const SearchBar = () => {
         []
     );
 
-    // Only show top 15 filtered results
     const filteredMovies = useMemo(() => {
         if (!debouncedQuery.trim()) return [];
         const q = debouncedQuery.toLowerCase();
@@ -47,7 +46,6 @@ export const SearchBar = () => {
             .filter((movie) => movie.normalizedTitle.includes(q))
             .slice(0, 15);
     }, [debouncedQuery, searchableMovies]);
-
 
     return (
         <section className="w-full flex flex-col flex-1/2 items-center justify-center gap-4">
@@ -95,8 +93,16 @@ export const SearchBar = () => {
                                     key={movie.id}
                                     className="p-2 hover:bg-indigo-500/30 cursor-pointer"
                                 >
-                                    <Link className="w-full block" href={`/home/movie/${movie.movieId}`}>
-                                        {normalizeTitle(movie.title)} - {movie.releaseYear}
+                                    <Link
+                                        className="flex items-center gap-2 w-full"
+                                        href={`/home/movie/${movie.movieId}`}
+                                    >
+                                        <span className="w-[40px] h-[60px]">
+                                            <FallbackImage movieId={movie.movieId} title={movie.title} className="rounded-sm object-cover" />
+                                        </span>
+                                        <span className="truncate">
+                                            {normalizeTitle(movie.title)} - {movie.releaseYear}
+                                        </span>
                                     </Link>
                                 </li>
                             ))}

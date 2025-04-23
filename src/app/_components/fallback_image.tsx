@@ -11,28 +11,17 @@ type FallbackImageProps = {
 };
 
 export default function FallbackImage({ movieId, title, className }: FallbackImageProps) {
-    const [imageError, setImageError] = useState(false);
+    const [imageSrc, setImageSrc] = useState(`/images/${movieId}.jpg`)
 
-    return imageError ? (
-        <Image
-            src={`/images/placeholder.png`}
-            alt={title}
-            width={0}
-            height={0}
-            sizes="100vw"
-            className={cn("h-full w-auto max-w-full", className)}
-        />
-    ) : (
-        <Image
-            src={`/images/${movieId}.jpg`}
-            alt={title}
-            width={0}
-            height={0}
-            sizes="100vw"
-            className={cn("h-full w-auto max-w-full", className)}
-            onError={() => setImageError(true)}
-        />
-    );
+    return <Image
+        src={imageSrc}
+        alt={title}
+        width={0}
+        height={0}
+        sizes="100vw"
+        className={cn("h-full w-auto max-w-full", className)}
+        onError={() => setImageSrc('/images/placeholder.png')}
+    />
 }
 
 function cn(...classes: (string | undefined | false)[]) {
