@@ -2,7 +2,8 @@ name: Keep Supabase Alive
 
 on:
   schedule:
-    - cron: "0 12 * * 0" # Runs every Sunday at 12:00 UTC
+    # Runs every Sunday and Thursday at midnight UTC
+    - cron: '0 0 * * 0,4'
   workflow_dispatch: # allows manual run
 
 jobs:
@@ -11,4 +12,6 @@ jobs:
     steps:
       - name: Curl Supabase Health
         run: |
-          curl -s -o /dev/null -w "%{http_code}" https://iecnbcynismtfjjgbtnq.supabase.co/rest/v1/
+          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/your_table_name?limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
