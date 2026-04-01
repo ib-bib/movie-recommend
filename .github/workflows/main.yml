@@ -10,8 +10,8 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Curl Supabase Health
+      - name: Curl Ping Supabase Storage
         run: |
           curl -X GET "${{ secrets.SUPABASE_URL }}/storage/v1/object/list/models" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+            -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}"
