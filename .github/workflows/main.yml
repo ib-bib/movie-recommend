@@ -12,6 +12,6 @@ jobs:
     steps:
       - name: Curl Supabase Health
         run: |
-          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/your_table_name?limit=1" \
+          curl -X GET "${{ secrets.SUPABASE_URL }}/storage/v1/object/list/models" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
